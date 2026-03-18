@@ -1,65 +1,449 @@
-import Image from "next/image";
+import Link from "next/link";
+import {
+  MagnifyingGlassIcon,
+  ArrowsRightLeftIcon,
+  ShoppingCartIcon,
+  MapIcon,
+  ChevronRightIcon,
+  CheckCircleIcon,
+} from "./icons";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { SearchBar } from "@/components/SearchBar";
+import { query } from "@/lib/db";
 
-export default function Home() {
+// ─── ICON COMPONENTS (inline SVGs for product images) ────
+function DrillIcon() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <svg viewBox="0 0 64 64" fill="none" className="w-full h-full">
+      <rect x="8" y="20" width="32" height="24" rx="3" fill="#0B1D3A" opacity="0.9" />
+      <rect x="40" y="28" width="18" height="8" rx="1" fill="#FF6B1A" />
+      <circle cx="20" cy="32" r="6" fill="#FF6B1A" opacity="0.3" />
+      <rect x="12" y="26" width="4" height="12" rx="1" fill="#FF8F4F" />
+      <rect x="55" y="30" width="6" height="4" rx="0.5" fill="#8B9DAF" />
+    </svg>
+  );
+}
+function CementIcon() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" className="w-full h-full">
+      <path d="M14 18h36l-4 40H18L14 18z" fill="#8B9DAF" opacity="0.8" />
+      <rect x="18" y="10" width="28" height="12" rx="2" fill="#0B1D3A" opacity="0.7" />
+      <text x="32" y="42" textAnchor="middle" fill="#0B1D3A" fontSize="7" fontWeight="700" fontFamily="monospace">35 KG</text>
+      <rect x="22" y="26" width="20" height="2" rx="1" fill="#0B1D3A" opacity="0.2" />
+    </svg>
+  );
+}
+function ScrewsIcon() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" className="w-full h-full">
+      {[0, 1, 2].map((i) => (
+        <g key={i} transform={`translate(${14 + i * 14}, ${20 + i * 4})`}>
+          <circle cx="4" cy="4" r="4" fill="#8B9DAF" />
+          <rect x="8" y="2" width="20" height="4" rx="1" fill="#0B1D3A" opacity="0.6" />
+          <line x1="2" y1="4" x2="6" y2="4" stroke="#0B1D3A" strokeWidth="0.8" opacity="0.4" />
+          <line x1="4" y1="2" x2="4" y2="6" stroke="#0B1D3A" strokeWidth="0.8" opacity="0.4" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+const productIcons: Record<string, () => React.ReactElement> = {
+  drill: DrillIcon,
+  cement: CementIcon,
+  screws: ScrewsIcon,
+};
+
+// Mock comparisons for the landing page (will show real data later when we have multi-store products)
+const COMPARISONS = [
+  {
+    name: "Perceuse-visseuse sans fil 18V BOSCH Professional GSR 18V-55",
+    category: "Outillage électroportatif",
+    image: "drill",
+    prices: [
+      { store: "Brico Dépôt", price: 129.0, best: true },
+      { store: "Leroy Merlin", price: 149.0, best: false },
+      { store: "Castorama", price: 154.9, best: false },
+      { store: "ManoMano", price: 139.5, best: false },
+    ],
+  },
+  {
+    name: "Sac ciment gris CEM II 32.5 — 35 kg",
+    category: "Gros Oeuvre",
+    image: "cement",
+    prices: [
+      { store: "Point P", price: 6.9, best: true },
+      { store: "Brico Dépôt", price: 7.5, best: false },
+      { store: "Leroy Merlin", price: 8.2, best: false },
+      { store: "Castorama", price: 8.9, best: false },
+    ],
+  },
+  {
+    name: "Lot 200 vis à bois TX 4×40 mm inox A2",
+    category: "Visserie & Fixation",
+    image: "screws",
+    prices: [
+      { store: "Würth", price: 18.9, best: true },
+      { store: "Leroy Merlin", price: 24.5, best: false },
+      { store: "Brico Dépôt", price: 21.0, best: false },
+      { store: "ManoMano", price: 22.3, best: false },
+    ],
+  },
+];
+
+const STORES = [
+  { name: "Leroy Merlin", short: "LM" },
+  { name: "Castorama", short: "CASTO" },
+  { name: "Brico Dépôt", short: "BD" },
+  { name: "Würth", short: "WÜRTH" },
+  { name: "Bricorama", short: "BRICO" },
+  { name: "Point P", short: "PP" },
+];
+
+async function getStats() {
+  try {
+    const [productCount, storeCount, listingCount] = await Promise.all([
+      query<{ count: string }>("SELECT COUNT(*) as count FROM products WHERE listing_count > 0"),
+      query<{ count: string }>("SELECT COUNT(DISTINCT chain) as count FROM stores"),
+      query<{ count: string }>("SELECT COUNT(*) as count FROM store_listings"),
+    ]);
+    return {
+      products: parseInt(productCount[0]?.count || "0"),
+      stores: parseInt(storeCount[0]?.count || "0"),
+      listings: parseInt(listingCount[0]?.count || "0"),
+    };
+  } catch {
+    return { products: 0, stores: 0, listings: 0 };
+  }
+}
+
+export default async function Home() {
+  const stats = await getStats();
+
+  const STATS = [
+    { value: stats.products > 0 ? `${stats.products.toLocaleString("fr-FR")}` : "2 500+", label: "Produits comparés" },
+    { value: stats.stores > 0 ? `${stats.stores}` : "6", label: "Enseignes partenaires" },
+    { value: "25%", label: "D'économie moyenne" },
+    { value: "06 / 83", label: "Départements couverts" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-cream">
+      <Navbar />
+
+      {/* HERO */}
+      <section className="relative pt-16 overflow-hidden">
+        <div className="absolute inset-0 bg-navy" />
+        <div className="absolute inset-0 blueprint-grid opacity-40" />
+        <div className="absolute inset-0 noise-overlay" />
+        <div
+          className="absolute -right-20 top-0 w-96 h-full bg-orange/5 -skew-x-12"
+          style={{ zIndex: 1 }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-28 md:py-40">
+          <div className="max-w-3xl">
+            <div
+              className="animate-fade-up inline-flex items-center gap-2 bg-orange/10 border border-orange/20 rounded-full px-4 py-1.5 mb-8"
+              style={{ animationDelay: "0.1s" }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <span className="w-2 h-2 rounded-full bg-orange animate-pulse" />
+              <span className="text-orange text-sm font-medium font-[var(--font-display)]">
+                CÔTE D&apos;AZUR &bull; PACA
+              </span>
+            </div>
+
+            <h1
+              className="animate-fade-up text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-6"
+              style={{ animationDelay: "0.2s" }}
             >
-              Learning
-            </a>{" "}
-            center.
+              Comparez les prix
+              <br />
+              <span className="text-orange">matériaux &amp; outillage</span>
+              <br />
+              de toutes les enseignes
+            </h1>
+
+            <p
+              className="animate-fade-up text-steel text-lg md:text-xl max-w-xl mb-10 leading-relaxed"
+              style={{ animationDelay: "0.35s" }}
+            >
+              Trouvez le meilleur prix pour vos matériaux de construction entre
+              Leroy Merlin, Castorama, Brico Dépôt, Würth et plus.
+              Optimisez votre trajet entre les magasins.
+            </p>
+
+            {/* SEARCH BAR */}
+            <div
+              className="animate-fade-up animate-pulse-glow"
+              style={{ animationDelay: "0.5s" }}
+            >
+              <SearchBar />
+              <div className="flex gap-3 mt-4 flex-wrap">
+                {["Perceuse Bosch", "Ciment 35kg", "Tournevis", "Parquet"].map(
+                  (tag) => (
+                    <Link
+                      key={tag}
+                      href={`/recherche?q=${encodeURIComponent(tag)}`}
+                      className="text-xs text-steel/60 bg-white/5 border border-white/10 rounded-full px-3 py-1 cursor-pointer hover:border-orange/30 hover:text-orange/80 transition-colors"
+                    >
+                      {tag}
+                    </Link>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-cream to-transparent z-10" />
+      </section>
+
+      {/* STATS BAR */}
+      <section className="relative z-20 -mt-10">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="bg-white rounded-2xl shadow-xl shadow-navy/5 border border-cream-dark/50 p-1">
+            <div className="grid grid-cols-2 md:grid-cols-4">
+              {STATS.map((stat, i) => (
+                <div
+                  key={stat.label}
+                  className={`text-center py-6 px-4 ${
+                    i < STATS.length - 1 ? "border-r border-cream-dark/40" : ""
+                  }`}
+                >
+                  <div className="font-[var(--font-display)] text-2xl md:text-3xl font-bold text-navy">
+                    {stat.value}
+                  </div>
+                  <div className="text-sm text-steel mt-1">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PARTNER STORES */}
+      <section id="enseignes" className="py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <p className="font-[var(--font-display)] text-xs tracking-[0.2em] text-orange uppercase mb-3">
+              Enseignes comparées
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-navy">
+              Tous les prix, un seul endroit
+            </h2>
+          </div>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-14">
+            {STORES.map((store) => (
+              <div key={store.name} className="store-logo group cursor-pointer">
+                <div className="bg-white rounded-xl border-2 border-cream-dark/30 hover:border-orange/30 px-8 py-5 transition-all hover:shadow-lg hover:shadow-orange/5">
+                  <div className="font-[var(--font-display)] text-lg font-bold text-navy/70 group-hover:text-navy transition-colors">
+                    {store.short}
+                  </div>
+                  <div className="text-xs text-steel mt-0.5">{store.name}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section id="fonctionnement" className="py-20 bg-white relative">
+        <div className="absolute inset-0 blueprint-grid opacity-30" />
+        <div className="relative z-10 max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <p className="font-[var(--font-display)] text-xs tracking-[0.2em] text-orange uppercase mb-3">
+              Comment ça marche
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-navy">
+              Simple comme 1, 2, 3
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {[
+              {
+                step: "01",
+                icon: <MagnifyingGlassIcon className="w-7 h-7" />,
+                title: "Recherchez",
+                desc: "Tapez le nom du produit, la marque ou la référence. Notre moteur compare instantanément les prix de toutes les enseignes.",
+              },
+              {
+                step: "02",
+                icon: <ArrowsRightLeftIcon className="w-7 h-7" />,
+                title: "Comparez",
+                desc: "Visualisez les prix côte à côte. Ajoutez au panier les produits au meilleur prix, même de différents magasins.",
+              },
+              {
+                step: "03",
+                icon: <MapIcon className="w-7 h-7" />,
+                title: "Optimisez",
+                desc: "Obtenez l'itinéraire optimisé pour récupérer vos achats dans chaque magasin. On vous dit par où commencer.",
+              },
+            ].map((item, i) => (
+              <div key={item.step} className="relative group">
+                {i < 2 && (
+                  <div className="hidden md:block absolute top-12 -right-4 z-20">
+                    <ChevronRightIcon className="w-8 h-8 text-cream-dark" />
+                  </div>
+                )}
+                <div className="bg-cream/50 hover:bg-cream rounded-2xl p-8 border border-cream-dark/20 hover:border-orange/20 transition-all hover:shadow-lg hover:shadow-orange/5 h-full">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="w-14 h-14 rounded-xl bg-navy flex items-center justify-center text-orange">
+                      {item.icon}
+                    </div>
+                    <span className="font-[var(--font-display)] text-4xl font-bold text-cream-dark group-hover:text-orange/20 transition-colors">
+                      {item.step}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-bold text-navy mb-3">{item.title}</h3>
+                  <p className="text-steel leading-relaxed text-sm">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PRODUCT COMPARISONS */}
+      <section id="comparer" className="py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <p className="font-[var(--font-display)] text-xs tracking-[0.2em] text-orange uppercase mb-3">
+              Exemples de comparaisons
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
+              Voyez la différence
+            </h2>
+            <p className="text-steel max-w-lg mx-auto">
+              Les prix varient considérablement d&apos;une enseigne à l&apos;autre.
+              Ne payez plus jamais trop cher.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {COMPARISONS.map((product) => {
+              const Icon = productIcons[product.image];
+              const bestPrice = Math.min(...product.prices.map((p) => p.price));
+              const worstPrice = Math.max(...product.prices.map((p) => p.price));
+              const saving = Math.round(((worstPrice - bestPrice) / worstPrice) * 100);
+
+              return (
+                <div
+                  key={product.name}
+                  className="bg-white rounded-2xl border border-cream-dark/30 overflow-hidden hover:shadow-xl hover:shadow-navy/5 transition-all group"
+                >
+                  <div className="bg-navy/[0.03] p-6 border-b border-cream-dark/20">
+                    <div className="flex gap-4">
+                      <div className="w-16 h-16 rounded-lg bg-cream flex items-center justify-center flex-shrink-0">
+                        <div className="w-12 h-12"><Icon /></div>
+                      </div>
+                      <div className="min-w-0">
+                        <span className="font-[var(--font-display)] text-[10px] tracking-[0.15em] text-orange uppercase">
+                          {product.category}
+                        </span>
+                        <h3 className="text-sm font-semibold text-navy leading-snug mt-0.5 line-clamp-2">
+                          {product.name}
+                        </h3>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    {product.prices.map((p, i) => (
+                      <div
+                        key={p.store}
+                        className={`flex items-center justify-between py-3 px-3 rounded-lg ${
+                          p.best
+                            ? "bg-green-deal/5 border border-green-deal/15"
+                            : i < product.prices.length - 1
+                              ? "border-b border-cream-dark/15"
+                              : ""
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {p.best && <CheckCircleIcon className="w-4 h-4 text-green-deal flex-shrink-0" />}
+                          <span className={`text-sm ${p.best ? "font-semibold text-navy" : "text-steel"}`}>
+                            {p.store}
+                          </span>
+                        </div>
+                        <span
+                          className={`font-[var(--font-display)] text-base font-bold ${
+                            p.best ? "text-green-deal" : "text-navy/60"
+                          }`}
+                        >
+                          {p.price.toFixed(2).replace(".", ",")} €
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="px-6 pb-5">
+                    <div className="flex items-center justify-between bg-orange/5 rounded-lg px-4 py-2.5">
+                      <span className="text-xs text-navy/60">Économie possible</span>
+                      <span className="font-[var(--font-display)] text-sm font-bold text-orange">
+                        jusqu&apos;à -{saving}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link
+              href="/recherche"
+              className="inline-flex items-center gap-2 bg-orange hover:bg-orange-hot text-white px-6 py-3 rounded-xl font-semibold transition-colors"
+            >
+              <MagnifyingGlassIcon className="w-5 h-5" />
+              Comparer tous les produits
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-navy" />
+        <div className="absolute inset-0 blueprint-grid opacity-20" />
+        <div className="absolute inset-0 noise-overlay" />
+        <div
+          className="absolute -left-20 top-0 w-96 h-full bg-orange/5 skew-x-12"
+          style={{ zIndex: 1 }}
+        />
+
+        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+            Arrêtez de payer trop cher
+            <br />
+            <span className="text-orange">vos matériaux</span>
+          </h2>
+          <p className="text-steel text-lg mb-10 max-w-xl mx-auto">
+            Rejoignez des milliers de professionnels et particuliers qui
+            économisent sur leurs achats BTP grâce à CompareBTP.
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/recherche"
+              className="bg-orange hover:bg-orange-hot text-white px-8 py-4 rounded-xl font-semibold text-base transition-colors shadow-lg shadow-orange/20 flex items-center justify-center gap-2"
+            >
+              <ShoppingCartIcon className="w-5 h-5" />
+              Commencer à comparer
+            </Link>
+            <Link
+              href="/categories"
+              className="bg-white/10 hover:bg-white/15 text-white px-8 py-4 rounded-xl font-semibold text-base transition-colors border border-white/10"
+            >
+              Parcourir les catégories
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </section>
+
+      <Footer />
     </div>
   );
 }
