@@ -43,6 +43,7 @@ export function ProductCard({
             className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 768px) 50vw, 25vw"
             unoptimized
+            referrerPolicy="no-referrer"
           />
         ) : (
           <div className="w-16 h-16 rounded-lg bg-navy/5 flex items-center justify-center">

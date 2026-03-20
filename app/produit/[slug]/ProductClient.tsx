@@ -184,6 +184,7 @@ export function ProductClient({ slug }: { slug: string }) {
                     className="object-contain p-6"
                     sizes="(max-width: 768px) 100vw, 320px"
                     unoptimized
+                    referrerPolicy="no-referrer"
                   />
                 ) : (
                   <div className="w-20 h-20 rounded-xl bg-navy/5 flex items-center justify-center">
