@@ -102,6 +102,18 @@ const STORES = [
   { name: "Point P", short: "PP" },
 ];
 
+// Force revalidation every hour
+export const revalidate = 3600;
+
+interface RealComparison {
+  name: string;
+  slug: string;
+  category: string;
+  image_url: string | null;
+  prices: { store: string; price: number; best: boolean }[];
+  saving: number;
+}
+
 async function getStats() {
   try {
     const [productCount, storeCount, listingCount] = await Promise.all([
@@ -119,8 +131,67 @@ async function getStats() {
   }
 }
 
+async function getRealComparisons(): Promise<RealComparison[]> {
+  try {
+    // Get products that are in multiple stores with the biggest price difference
+    const products = await query<{
+      id: number; name: string; slug: string; image_url: string | null;
+      min_price: number; max_price: number; listing_count: number;
+      category_name: string;
+    }>(`
+      SELECT p.id, p.name, p.slug, p.image_url, p.min_price, p.max_price, p.listing_count,
+             COALESCE(c.name, 'Divers') as category_name
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      WHERE p.listing_count >= 2
+        AND p.min_price IS NOT NULL
+        AND p.max_price IS NOT NULL
+        AND p.max_price > p.min_price
+        AND p.image_url IS NOT NULL
+      ORDER BY (p.max_price - p.min_price) / p.max_price DESC
+      LIMIT 6
+    `);
+
+    const comparisons: RealComparison[] = [];
+    for (const product of products.slice(0, 3)) {
+      const listings = await query<{
+        current_price: number; store_name: string; store_chain: string;
+      }>(`
+        SELECT sl.current_price, s.name as store_name, s.chain as store_chain
+        FROM store_listings sl
+        JOIN stores s ON sl.store_id = s.id
+        WHERE sl.product_id = $1
+        ORDER BY sl.current_price ASC
+        LIMIT 4
+      `, [product.id]);
+
+      if (listings.length >= 2) {
+        const minPrice = Math.min(...listings.map(l => Number(l.current_price)));
+        const maxPrice = Math.max(...listings.map(l => Number(l.current_price)));
+        const saving = Math.round(((maxPrice - minPrice) / maxPrice) * 100);
+
+        comparisons.push({
+          name: product.name,
+          slug: product.slug,
+          category: product.category_name,
+          image_url: product.image_url,
+          prices: listings.map(l => ({
+            store: l.store_chain.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+            price: Number(l.current_price),
+            best: Number(l.current_price) === minPrice,
+          })),
+          saving,
+        });
+      }
+    }
+    return comparisons;
+  } catch {
+    return [];
+  }
+}
+
 export default async function Home() {
-  const stats = await getStats();
+  const [stats, realComparisons] = await Promise.all([getStats(), getRealComparisons()]);
 
   const STATS = [
     { value: stats.products > 0 ? `${stats.products.toLocaleString("fr-FR")}` : "2 500+", label: "Produits comparés" },
@@ -314,27 +385,38 @@ export default async function Home() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {COMPARISONS.map((product) => {
-              const Icon = productIcons[product.image];
-              const bestPrice = Math.min(...product.prices.map((p) => p.price));
-              const worstPrice = Math.max(...product.prices.map((p) => p.price));
-              const saving = Math.round(((worstPrice - bestPrice) / worstPrice) * 100);
+            {(realComparisons.length > 0 ? realComparisons : COMPARISONS).map((product) => {
+              const isReal = 'slug' in product;
+              const prices = product.prices;
+              const bestPrice = Math.min(...prices.map((p) => p.price));
+              const worstPrice = Math.max(...prices.map((p) => p.price));
+              const saving = isReal ? (product as RealComparison).saving : Math.round(((worstPrice - bestPrice) / worstPrice) * 100);
+              const imageUrl = isReal ? (product as RealComparison).image_url : null;
 
               return (
-                <div
+                <Link
                   key={product.name}
-                  className="bg-white rounded-2xl border border-cream-dark/30 overflow-hidden hover:shadow-xl hover:shadow-navy/5 transition-all group"
+                  href={isReal ? `/produit/${(product as RealComparison).slug}` : '/recherche'}
+                  className="bg-white rounded-2xl border border-cream-dark/30 overflow-hidden hover:shadow-xl hover:shadow-navy/5 transition-all group block"
                 >
                   <div className="bg-navy/[0.03] p-6 border-b border-cream-dark/20">
                     <div className="flex gap-4">
-                      <div className="w-16 h-16 rounded-lg bg-cream flex items-center justify-center flex-shrink-0">
-                        <div className="w-12 h-12"><Icon /></div>
+                      <div className="w-16 h-16 rounded-lg bg-cream flex items-center justify-center flex-shrink-0 overflow-hidden relative">
+                        {imageUrl ? (
+                          <img src={imageUrl} alt={product.name} className="w-14 h-14 object-contain" />
+                        ) : !isReal && productIcons[(product as (typeof COMPARISONS)[0]).image] ? (
+                          <div className="w-12 h-12">{productIcons[(product as (typeof COMPARISONS)[0]).image]()}</div>
+                        ) : (
+                          <svg viewBox="0 0 24 24" className="w-8 h-8 text-steel/30" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                          </svg>
+                        )}
                       </div>
                       <div className="min-w-0">
                         <span className="font-[var(--font-display)] text-[10px] tracking-[0.15em] text-orange uppercase">
                           {product.category}
                         </span>
-                        <h3 className="text-sm font-semibold text-navy leading-snug mt-0.5 line-clamp-2">
+                        <h3 className="text-sm font-semibold text-navy leading-snug mt-0.5 line-clamp-2 group-hover:text-orange transition-colors">
                           {product.name}
                         </h3>
                       </div>
@@ -342,13 +424,13 @@ export default async function Home() {
                   </div>
 
                   <div className="p-4">
-                    {product.prices.map((p, i) => (
+                    {prices.map((p, i) => (
                       <div
                         key={p.store}
                         className={`flex items-center justify-between py-3 px-3 rounded-lg ${
                           p.best
                             ? "bg-green-deal/5 border border-green-deal/15"
-                            : i < product.prices.length - 1
+                            : i < prices.length - 1
                               ? "border-b border-cream-dark/15"
                               : ""
                         }`}
@@ -378,7 +460,7 @@ export default async function Home() {
                       </span>
                     </div>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

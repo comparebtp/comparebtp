@@ -350,6 +350,306 @@ Au-delà de 500€ d'achat, n'hésitez pas à demander une remise, surtout chez 
 - **Éco-PTZ** : prêt à taux zéro pour les travaux d'économie d'énergie
     `,
   },
+  "renovation-salle-de-bain-budget": {
+    title: "Rénover sa salle de bain : budget et matériaux",
+    category: "Plomberie",
+    date: "10 mars 2026",
+    content: `
+## Budget moyen d'une rénovation salle de bain
+
+Le budget dépend de la surface et du niveau de finition :
+
+| Type de rénovation | Budget moyen | Fourchette |
+|---------------------|-------------|------------|
+| Rafraîchissement (peinture, joints) | 1 500€ | 800€ - 2 500€ |
+| Rénovation partielle (douche ou baignoire) | 4 000€ | 2 500€ - 6 000€ |
+| Rénovation complète | 8 000€ | 5 000€ - 15 000€ |
+| Rénovation haut de gamme | 15 000€+ | 12 000€ - 25 000€ |
+
+## Les postes de dépense principaux
+
+### Carrelage sol et mur
+- **Budget** : 20-80€/m² (pose comprise : 50-120€/m²)
+- **Meilleur prix** : Brico Dépôt pour du carrelage basique, Ciffreo Bona pour du haut de gamme
+- **Surface moyenne** : 15-25 m² (sol + murs)
+
+### Sanitaires
+- **WC** : 80-500€ (suspendu : 200-800€)
+- **Lavabo/vasque** : 50-400€
+- **Robinetterie** : 40-300€ par point d'eau
+- **Meilleur prix** : Brico Dépôt et ManoMano pour les sanitaires standards
+
+### Douche ou baignoire
+- **Receveur de douche** : 100-500€
+- **Paroi de douche** : 150-800€
+- **Baignoire** : 200-2 000€
+- **Colonne de douche** : 80-500€
+
+### Plomberie
+- **Raccordements** : 500-1 500€ (si déplacement des arrivées/évacuations)
+- **Chauffe-eau** : 200-1 500€ (électrique vs thermodynamique)
+
+## Où acheter au meilleur prix ?
+
+1. **Brico Dépôt** : les prix les plus bas sur les sanitaires et robinetterie basiques
+2. **Cedeo** : qualité pro, bon rapport qualité-prix sur les marques (Grohe, Geberit)
+3. **Richardson** : showrooms avec large choix, prix moyens-hauts
+4. **ManoMano** : bons prix en ligne, large choix
+5. **Leroy Merlin / Castorama** : bon compromis choix/prix/conseil
+
+**Conseil BatiPrix** : comparez systématiquement entre 3 enseignes. Sur une rénovation complète, vous pouvez économiser **800 à 2 000€**.
+    `,
+  },
+  "isoler-maison-cote-azur": {
+    title: "Isoler sa maison sur la Côte d'Azur : matériaux et prix",
+    category: "Isolation",
+    date: "6 mars 2026",
+    content: `
+## Pourquoi isoler sur la Côte d'Azur ?
+
+Même en climat méditerranéen, l'isolation est essentielle :
+- **Été** : réduire la chaleur (jusqu'à 40°C en canicule)
+- **Hiver** : les nuits peuvent descendre à 5°C
+- **Économies** : -30 à -50% sur la facture énergétique
+- **Aides** : MaPrimeRénov' applicable, même dans le Sud
+
+## Comparatif des isolants
+
+| Isolant | R (pour 100mm) | Prix/m² | Avantages | Inconvénients |
+|---------|---------------|---------|-----------|---------------|
+| Laine de verre | 2.5 | 5-10€ | Pas cher, facile | Irritant, se tasse |
+| Laine de roche | 2.8 | 8-15€ | Bon phonique, feu | Plus cher |
+| Polystyrène expansé | 2.6 | 5-8€ | Léger, hydrophobe | Inflammable |
+| Polystyrène extrudé | 3.3 | 10-18€ | Très résistant | Peu écologique |
+| Fibre de bois | 2.4 | 15-30€ | Écologique, confort été | Cher |
+| Ouate de cellulose | 2.7 | 10-20€ | Recyclé, bon été | Soufflage pro requis |
+
+## Spécificité Côte d'Azur : le confort d'été
+
+Sur la Côte d'Azur, le **confort d'été** est aussi important que l'isolation hivernale. Les matériaux avec un bon **déphasage thermique** sont préférables :
+
+- **Fibre de bois** : 10-12h de déphasage → excellent pour l'été
+- **Ouate de cellulose** : 8-10h → très bon
+- **Laine de verre** : 4-6h → moyen
+- **Polystyrène** : 2-4h → insuffisant pour l'été
+
+## Où acheter ?
+
+- **Brico Dépôt** : meilleur prix sur laine de verre et polystyrène
+- **Point P** : large gamme pro, laine de roche Rockwool
+- **Leroy Merlin** : bon choix en fibre de bois (Steico)
+- **Ecobati** (Contes, 06) : spécialiste isolants biosourcés
+
+## Aides financières en PACA
+
+- **MaPrimeRénov'** : jusqu'à 75€/m² selon revenus
+- **CEE** : 10-20€/m² supplémentaires
+- **TVA 5,5%** sur les travaux d'isolation
+- **Éco-PTZ** : jusqu'à 50 000€ à taux zéro
+    `,
+  },
+  "comparatif-visserie-fixation": {
+    title: "Visserie et fixation : comparatif des enseignes",
+    category: "Quincaillerie",
+    date: "4 mars 2026",
+    content: `
+## Les types de vis les plus courants
+
+### Vis à bois
+- **Usage** : assemblage bois, aggloméré, MDF
+- **Empreinte** : Torx (TX) recommandé, Pozidriv (PZ) classique
+- **Prix moyen** : 5-15€ les 200 vis (selon diamètre/longueur)
+
+### Vis à placo
+- **Usage** : fixation plaques de plâtre sur rail
+- **Prix moyen** : 8-15€ les 500 vis
+
+### Chevilles
+- **Cheville à expansion** : mur plein (béton, brique)
+- **Cheville Molly** : mur creux (placo)
+- **Cheville chimique** : charges lourdes
+- **Prix** : 3-20€ le lot selon type
+
+## Comparatif des prix par enseigne
+
+| Produit | Würth | Brico Dépôt | Leroy Merlin | Castorama |
+|---------|-------|-------------|-------------|-----------|
+| Vis bois TX 4x40 (200) | 12€ HT | 8€ | 11€ | 12€ |
+| Vis placo 3.5x35 (500) | 15€ HT | 9€ | 13€ | 14€ |
+| Chevilles Molly M5 (50) | 18€ HT | 10€ | 14€ | 15€ |
+| Scellement chimique 300ml | 12€ HT | 9€ | 15€ | 16€ |
+
+**Note** : Würth prix HT (professionnels), les autres TTC.
+
+## Où acheter ?
+
+- **Würth** : qualité pro irréprochable, le meilleur pour les gros volumes. Prix HT avantageux pour les artisans.
+- **Brico Dépôt** : les prix les plus bas en TTC, qualité correcte pour du bricolage.
+- **Leroy Merlin** : bon choix en marque Diall, disponibilité immédiate.
+- **ManoMano** : bons prix en ligne sur les lots importants.
+
+**Astuce** : achetez en boîtes de 500 ou 1000 — le prix unitaire est 30-50% moins cher qu'en blister.
+    `,
+  },
+  "outillage-electroportatif-pro": {
+    title: "Outillage électroportatif : guide d'achat pro",
+    category: "Outillage",
+    date: "2 mars 2026",
+    content: `
+## Les gammes pro vs grand public
+
+### Gamme professionnelle
+- **Bosch bleu** (Professional), **Makita**, **DeWalt**, **Milwaukee**, **Hilti**
+- Moteur brushless, batteries haute capacité (4-8 Ah)
+- Garantie 2-3 ans pro
+- Prix : 150-500€ par outil
+
+### Gamme grand public
+- **Bosch vert**, **Black+Decker**, **Ryobi**, **Einhell**
+- Moteur à charbon, batteries 1.5-3 Ah
+- Garantie 2 ans
+- Prix : 30-150€ par outil
+
+## Les outils indispensables du pro BTP
+
+### 1. Perceuse-visseuse (18V)
+Le couteau suisse du chantier.
+- **Top pro** : Makita DDF484 (~200€), DeWalt DCD791 (~170€)
+- **Meilleur rapport Q/P** : Bosch GSR 18V-55 (~130€)
+
+### 2. Meuleuse 125mm
+Pour couper, meuler, poncer.
+- **Top pro** : Makita DGA504 (~180€), Milwaukee M18 (~200€)
+- **Entrée pro** : Bosch GWS 18V-10 (~150€)
+
+### 3. Perforateur SDS+
+Pour le béton et la maçonnerie.
+- **Top pro** : Hilti TE 6-A22 (~500€), Makita DHR243 (~250€)
+- **Budget** : Bosch GBH 18V-26 (~200€)
+
+### 4. Scie circulaire
+Pour les coupes droites dans le bois.
+- **Top pro** : Festool TSC 55 (~450€), Makita DHS680 (~200€)
+
+## Où acheter au meilleur prix ?
+
+| Enseigne | Forces | Faiblesses |
+|----------|--------|------------|
+| **Würth** | Qualité pro, SAV, tarifs volume | Prix unitaire élevé |
+| **ManoMano** | Large choix, bons prix en ligne | Pas de conseil en magasin |
+| **Brico Dépôt** | Prix bas, disponibilité | Gamme limitée, peu de pro |
+| **Leroy Merlin** | Choix large, conseil, SAV | Prix moyens |
+
+**Conseil** : l'investissement dans une bonne batterie est crucial. Privilégiez un système unique (Makita 18V LXT, DeWalt 18V XR, Milwaukee M18) pour mutualiser vos batteries.
+    `,
+  },
+  "carrelage-sol-mur-guide": {
+    title: "Choisir son carrelage sol et mur : guide complet",
+    category: "Carrelage",
+    date: "28 février 2026",
+    content: `
+## Les types de carrelage
+
+### Grès cérame
+- **Le plus courant** pour le sol intérieur/extérieur
+- Très résistant (PEI 4-5), facile d'entretien
+- Prix : 15-60€/m²
+- Existe en imitation bois, pierre, béton, marbre
+
+### Faïence
+- **Pour les murs** uniquement (trop fragile pour le sol)
+- Large choix de décors et couleurs
+- Prix : 10-40€/m²
+
+### Carreaux de ciment
+- Style rétro/déco, tendance forte
+- Nécessite un traitement hydrofuge
+- Prix : 40-120€/m²
+
+### Travertin / Pierre naturelle
+- Haut de gamme, chaque pièce est unique
+- Prix : 30-80€/m²
+
+## Prix comparés entre enseignes
+
+| Type | Brico Dépôt | Leroy Merlin | Castorama | Ciffreo Bona |
+|------|-------------|-------------|-----------|-------------|
+| Grès cérame 60x60 basique | 12€/m² | 18€/m² | 17€/m² | 15€/m² |
+| Grès imitation bois | 15€/m² | 22€/m² | 20€/m² | 18€/m² |
+| Faïence murale | 8€/m² | 14€/m² | 13€/m² | 12€/m² |
+| Mosaïque | 20€/m² | 30€/m² | 28€/m² | 25€/m² |
+
+**Note** : les prix italiens (Ventimiglia) sont 15-30% moins chers pour le grès cérame.
+
+## Calculer la quantité nécessaire
+
+**Formule** : Surface (m²) + 10% de marge (coupes, casse)
+
+Exemple : pièce 4m x 3m = 12m² → commander **13.2m²** minimum
+
+## Colle et joints
+
+- **Colle carrelage** : 5-10€ le sac de 25kg (consommation : 5-7 kg/m²)
+- **Joint** : 3-8€ le sac de 5kg (consommation : 0.5 kg/m²)
+- **Croisillons** : 2-5€ le sachet
+
+**Utilisez BatiPrix** pour comparer les prix du carrelage entre les différentes enseignes de la Côte d'Azur.
+    `,
+  },
+  "electricite-maison-normes-prix": {
+    title: "Installation électrique : normes NF C 15-100 et prix",
+    category: "Électricité",
+    date: "25 février 2026",
+    content: `
+## La norme NF C 15-100 en résumé
+
+Toute installation électrique neuve ou rénovée doit respecter cette norme. Points clés :
+
+### Tableau électrique
+- **Disjoncteur général** : 30 ou 60A selon abonnement
+- **Interrupteur différentiel 30mA** : minimum 2 (type A + type AC)
+- **Disjoncteurs divisionnaires** : 1 par circuit
+- **Parafoudre** : obligatoire dans le Sud-Est (zone kéraunique > 25)
+
+### Nombre de prises minimum
+| Pièce | Prises 16A | Prises spécialisées |
+|-------|-----------|-------------------|
+| Séjour > 20m² | 7 | 1 (internet) |
+| Chambre | 3 | - |
+| Cuisine | 6 | 3 (four, lave-vaisselle, plaque) |
+| Salle de bain | 1 (hors volume) | 1 (lave-linge) |
+
+## Prix des composants électriques
+
+| Composant | Entrée de gamme | Milieu de gamme | Haut de gamme |
+|-----------|----------------|----------------|---------------|
+| Tableau 2 rangées | 25€ | 50€ | 100€ |
+| Disjoncteur 16A | 5€ | 10€ | 18€ |
+| Différentiel 40A/30mA | 25€ | 45€ | 80€ |
+| Prise Legrand | 3€ | 8€ | 20€ |
+| Interrupteur | 3€ | 8€ | 25€ |
+| Câble R2V 3G2.5 (100m) | 60€ | 90€ | - |
+| Gaine ICTA 20mm (100m) | 15€ | 25€ | - |
+
+## Où acheter ?
+
+- **Rexel** : le spécialiste pro, tarifs négociables, stock large (compte pro requis)
+- **YESSS Électrique** : alternative à Rexel, bons prix (compte pro requis)
+- **Brico Dépôt** : meilleur prix en TTC pour les particuliers
+- **Leroy Merlin** : bon choix Legrand, disponibilité immédiate
+- **ManoMano** : bons prix en ligne sur les lots
+
+## Budget installation complète
+
+| Type | Budget estimé |
+|------|--------------|
+| Mise en conformité tableau | 800€ - 1 500€ |
+| Rénovation complète F3 | 4 000€ - 8 000€ |
+| Installation neuve maison | 8 000€ - 15 000€ |
+
+**Conseil** : pour les gros chantiers, ouvrez un compte pro chez Rexel ou YESSS — les prix sont 30-40% moins chers qu'en grande surface.
+    `,
+  },
 };
 
 export function generateStaticParams() {
