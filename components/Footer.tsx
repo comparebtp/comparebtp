@@ -5,6 +5,17 @@ export function Footer() {
   return (
     <footer className="bg-navy-light border-t border-white/5 py-14">
       <div className="max-w-7xl mx-auto px-6">
+        {/* Affiliate disclosure - prominent */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4 mb-10 text-center">
+          <p className="text-xs text-steel leading-relaxed">
+            <strong className="text-white/80">Transparence :</strong> BatiPrix est un comparateur de prix indépendant.
+            Certains liens vers les sites des enseignes partenaires sont des liens d&apos;affiliation.
+            Si vous effectuez un achat via ces liens, nous pouvons percevoir une commission,{" "}
+            <strong className="text-white/60">sans aucun surcoût pour vous</strong>.
+            Cela n&apos;influence ni les prix affichés ni le classement des produits.
+          </p>
+        </div>
+
         <div className="grid md:grid-cols-4 gap-10 mb-10">
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
@@ -15,11 +26,16 @@ export function Footer() {
                 Bati<span className="text-orange">Prix</span>
               </span>
             </Link>
-            <p className="text-steel text-sm leading-relaxed max-w-sm">
-              Le premier comparateur de prix dédié aux matériaux de
+            <p className="text-steel text-sm leading-relaxed max-w-sm mb-4">
+              Le comparateur de prix dédié aux matériaux de
               construction et à l&apos;outillage professionnel sur la Côte
               d&apos;Azur. Comparez, économisez, optimisez vos trajets.
             </p>
+            <div className="flex items-center gap-3 text-steel/40 text-xs">
+              <span>🔒 Site sécurisé</span>
+              <span>•</span>
+              <span>🇫🇷 Hébergé en Europe</span>
+            </div>
           </div>
           <div>
             <h4 className="font-semibold text-white text-sm mb-4">Navigation</h4>
@@ -28,6 +44,7 @@ export function Footer() {
               <li><Link href="/recherche" className="hover:text-orange transition-colors">Rechercher</Link></li>
               <li><Link href="/categories" className="hover:text-orange transition-colors">Catégories</Link></li>
               <li><Link href="/magasins" className="hover:text-orange transition-colors">Magasins</Link></li>
+              <li><Link href="/guides" className="hover:text-orange transition-colors">Guides</Link></li>
               <li><Link href="/panier" className="hover:text-orange transition-colors">Panier</Link></li>
             </ul>
           </div>
@@ -48,7 +65,7 @@ export function Footer() {
             Les prix affichés sont donnés à titre indicatif.
           </p>
           <p className="text-xs text-steel/40">
-            Comparateur indépendant &bull; Non affilié aux enseignes mentionnées
+            Comparateur indépendant &bull; batiprix.pro
           </p>
         </div>
       </div>
