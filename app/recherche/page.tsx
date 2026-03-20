@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { SearchResults } from "./SearchResults";
 
 export const metadata = {
-  title: "Recherche — CompareBTP",
+  title: "Recherche — BatiPrix",
   description: "Recherchez et comparez les prix des matériaux BTP",
 };
 

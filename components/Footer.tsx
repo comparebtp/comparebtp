@@ -12,7 +12,7 @@ export function Footer() {
                 <ArrowsRightLeftIcon className="w-4 h-4 text-white" />
               </div>
               <span className="font-[var(--font-display)] text-white text-base font-bold">
-                Compare<span className="text-orange">BTP</span>
+                Bati<span className="text-orange">Prix</span>
               </span>
             </Link>
             <p className="text-steel text-sm leading-relaxed max-w-sm">
@@ -34,16 +34,17 @@ export function Footer() {
           <div>
             <h4 className="font-semibold text-white text-sm mb-4">Légal</h4>
             <ul className="space-y-2 text-sm text-steel">
-              <li><a href="#" className="hover:text-orange transition-colors">Mentions légales</a></li>
-              <li><a href="#" className="hover:text-orange transition-colors">Politique de confidentialité</a></li>
-              <li><a href="#" className="hover:text-orange transition-colors">CGU</a></li>
-              <li><a href="#" className="hover:text-orange transition-colors">Contact</a></li>
+              <li><Link href="/mentions-legales" className="hover:text-orange transition-colors">Mentions légales</Link></li>
+              <li><Link href="/confidentialite" className="hover:text-orange transition-colors">Politique de confidentialité</Link></li>
+              <li><Link href="/cgu" className="hover:text-orange transition-colors">CGU</Link></li>
+              <li><Link href="/cookies" className="hover:text-orange transition-colors">Politique de cookies</Link></li>
+              <li><Link href="/contact" className="hover:text-orange transition-colors">Contact</Link></li>
             </ul>
           </div>
         </div>
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-steel/60">
-            &copy; {new Date().getFullYear()} CompareBTP. Tous droits réservés.
+            &copy; {new Date().getFullYear()} BatiPrix. Tous droits réservés.
             Les prix affichés sont donnés à titre indicatif.
           </p>
           <p className="text-xs text-steel/40">

@@ -17,7 +17,7 @@ export function Navbar() {
             <ArrowsRightLeftIcon className="w-5 h-5 text-white" />
           </div>
           <span className="font-[var(--font-display)] text-white text-lg font-bold tracking-tight">
-            Compare<span className="text-orange">BTP</span>
+            Bati<span className="text-orange">Prix</span>
           </span>
         </Link>
 
@@ -33,6 +33,9 @@ export function Navbar() {
           </Link>
           <Link href="/magasins" className="hover:text-white transition-colors">
             Magasins
+          </Link>
+          <Link href="/guides" className="hover:text-white transition-colors">
+            Guides
           </Link>
         </div>
 

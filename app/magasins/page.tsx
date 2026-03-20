@@ -451,7 +451,7 @@ export default function MagasinsPage() {
             </svg>
           </div>
           <span className="font-[var(--font-display)] text-white text-base font-bold">
-            Compare<span className="text-orange">BTP</span>
+            Bati<span className="text-orange">Prix</span>
           </span>
         </a>
         <div className="h-6 w-px bg-white/10" />

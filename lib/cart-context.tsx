@@ -32,14 +32,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Load from localStorage
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("comparebtp-cart");
+      const saved = localStorage.getItem("batiprix-cart");
       if (saved) setItems(JSON.parse(saved));
     } catch {}
   }, []);
 
   // Save to localStorage
   useEffect(() => {
-    localStorage.setItem("comparebtp-cart", JSON.stringify(items));
+    localStorage.setItem("batiprix-cart", JSON.stringify(items));
   }, [items]);
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">) => {

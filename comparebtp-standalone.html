@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompareBTP — Comparez les prix matériaux & outillage BTP sur la Côte d'Azur</title>
+<meta name="description" content="Comparez les prix des matériaux de construction, outillage et fournitures BTP entre Leroy Merlin, Castorama, Brico Dépôt, Würth et plus. Côte d'Azur & PACA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0B1D3A;--navy-light:#132B52;--orange:#FF6B1A;--orange-hot:#FF4800;--orange-light:#FF8F4F;--cream:#F5F0E8;--cream-dark:#E8DFD0;--concrete:#D4CBC0;--steel:#8B9DAF;--white:#FEFDFB;--green:#2ECC71;--red:#E74C3C}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);line-height:1.6}
+.mono{font-family:'Space Mono',monospace}
+a{color:inherit;text-decoration:none}
+
+/* Blueprint grid */
+.blueprint{background-image:linear-gradient(rgba(11,29,58,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(11,29,58,.03) 1px,transparent 1px),linear-gradient(rgba(11,29,58,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(11,29,58,.06) 1px,transparent 1px);background-size:20px 20px,20px 20px,100px 100px,100px 100px}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(11,29,58,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.05)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-icon{width:32px;height:32px;background:var(--orange);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:20px;height:20px;stroke:white;fill:none;stroke-width:2}
+.logo-text{color:white;font-size:18px;font-weight:700}
+.logo-text span{color:var(--orange)}
+.nav-links{display:flex;gap:32px;font-size:14px;color:var(--steel)}
+.nav-links a:hover{color:white}
+.nav-loc{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--steel)}
+.nav-loc svg{width:16px;height:16px;stroke:var(--orange);fill:none;stroke-width:2}
+
+/* Hero */
+.hero{position:relative;padding:140px 24px 120px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:var(--navy)}
+.hero-accent{position:absolute;right:-80px;top:0;width:384px;height:100%;background:rgba(255,107,26,.05);transform:skewX(-12deg)}
+.hero-inner{position:relative;z-index:10;max-width:1200px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,107,26,.1);border:1px solid rgba(255,107,26,.2);border-radius:999px;padding:6px 16px;margin-bottom:32px}
+.hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);animation:pulse 2s infinite}
+.hero-badge span{color:var(--orange);font-size:14px;font-weight:500}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+h1{font-size:clamp(36px,6vw,72px);font-weight:700;color:white;line-height:1.05;margin-bottom:24px;letter-spacing:-.02em}
+h1 em{font-style:normal;color:var(--orange)}
+.hero-desc{color:var(--steel);font-size:clamp(16px,2vw,20px);max-width:540px;margin-bottom:40px;line-height:1.7}
+
+/* Search */
+.search-box{max-width:640px;display:flex;background:white;border-radius:12px;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,.2)}
+.search-box input{flex:1;border:none;padding:16px 20px;font-size:16px;font-family:inherit;outline:none;color:var(--navy)}
+.search-box input::placeholder{color:var(--concrete)}
+.search-btn{background:var(--orange);color:white;border:none;padding:16px 32px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer}
+.search-btn:hover{background:var(--orange-hot)}
+.search-tags{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.search-tags span{font-size:12px;color:rgba(139,157,175,.6);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:4px 12px;cursor:pointer}
+.search-tags span:hover{border-color:rgba(255,107,26,.3);color:rgba(255,107,26,.8)}
+.hero-fade{position:absolute;bottom:0;left:0;right:0;height:96px;background:linear-gradient(to top,var(--cream),transparent);z-index:10}
+
+/* Stats */
+.stats{position:relative;z-index:20;margin-top:-40px;max-width:900px;margin-left:auto;margin-right:auto;padding:0 24px}
+.stats-grid{background:white;border-radius:16px;box-shadow:0 10px 40px rgba(11,29,58,.05);border:1px solid rgba(232,223,208,.5);display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{text-align:center;padding:24px 16px;border-right:1px solid rgba(232,223,208,.4)}
+.stat:last-child{border-right:none}
+.stat-val{font-size:clamp(20px,3vw,30px);font-weight:700;color:var(--navy)}
+.stat-label{font-size:14px;color:var(--steel);margin-top:4px}
+
+/* Stores */
+.stores{padding:80px 24px;text-align:center}
+.section-tag{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;font-weight:500}
+h2{font-size:clamp(24px,4vw,40px);font-weight:700;color:var(--navy);margin-bottom:16px}
+.stores-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:24px;margin-top:48px}
+.store-card{background:white;border:2px solid rgba(232,223,208,.3);border-radius:12px;padding:20px 32px;cursor:pointer;transition:all .3s}
+.store-card:hover{border-color:rgba(255,107,26,.3);box-shadow:0 8px 24px rgba(255,107,26,.05);transform:translateY(-2px)}
+.store-short{font-size:18px;font-weight:700;color:rgba(11,29,58,.7)}
+.store-card:hover .store-short{color:var(--navy)}
+.store-name{font-size:12px;color:var(--steel);margin-top:2px}
+
+/* How it works */
+.how{padding:80px 24px;background:white;position:relative}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:1000px;margin:48px auto 0}
+.how-card{background:rgba(245,240,232,.5);border-radius:16px;padding:32px;border:1px solid rgba(232,223,208,.2);transition:all .3s}
+.how-card:hover{background:var(--cream);border-color:rgba(255,107,26,.2);box-shadow:0 8px 24px rgba(255,107,26,.05)}
+.how-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
+.how-icon{width:56px;height:56px;border-radius:12px;background:var(--navy);display:flex;align-items:center;justify-content:center}
+.how-icon svg{width:28px;height:28px;stroke:var(--orange);fill:none;stroke-width:2}
+.how-step{font-size:40px;font-weight:700;color:var(--cream-dark)}
+.how-card:hover .how-step{color:rgba(255,107,26,.2)}
+.how-card h3{font-size:20px;font-weight:700;margin-bottom:12px}
+.how-card p{font-size:14px;color:var(--steel);line-height:1.7}
+
+/* Comparisons */
+.compare{padding:80px 24px}
+.compare-desc{color:var(--steel);max-width:480px;margin:0 auto 48px;text-align:center}
+.compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1200px;margin:0 auto}
+.prod-card{background:white;border-radius:16px;border:1px solid rgba(232,223,208,.3);overflow:hidden;transition:box-shadow .3s}
+.prod-card:hover{box-shadow:0 20px 40px rgba(11,29,58,.05)}
+.prod-head{background:rgba(11,29,58,.03);padding:24px;border-bottom:1px solid rgba(232,223,208,.2);display:flex;gap:16px}
+.prod-icon{width:64px;height:64px;border-radius:8px;background:var(--cream);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.prod-cat{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--orange)}
+.prod-name{font-size:14px;font-weight:600;line-height:1.4;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.prod-prices{padding:16px}
+.price-row{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:8px}
+.price-row.best{background:rgba(46,204,113,.05);border:1px solid rgba(46,204,113,.15)}
+.price-row:not(.best)+.price-row:not(.best){border-top:1px solid rgba(232,223,208,.15)}
+.price-store{font-size:14px;color:var(--steel);display:flex;align-items:center;gap:6px}
+.price-row.best .price-store{color:var(--navy);font-weight:600}
+.check-icon{width:16px;height:16px;stroke:var(--green);fill:none;stroke-width:2}
+.price-val{font-size:16px;font-weight:700;color:rgba(11,29,58,.6)}
+.price-row.best .price-val{color:var(--green)}
+.prod-saving{margin:0 24px 20px;background:rgba(255,107,26,.05);border-radius:8px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+.prod-saving span:first-child{font-size:12px;color:rgba(11,29,58,.6)}
+.prod-saving span:last-child{font-size:14px;font-weight:700;color:var(--orange)}
+
+/* CTA */
+.cta{padding:80px 24px;position:relative;overflow:hidden;text-align:center}
+.cta-bg{position:absolute;inset:0;background:var(--navy)}
+.cta-inner{position:relative;z-index:10;max-width:640px;margin:0 auto}
+.cta h2{color:white}
+.cta h2 em{color:var(--orange);font-style:normal}
+.cta p{color:var(--steel);font-size:18px;margin:24px 0 40px;line-height:1.7}
+.cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:var(--orange);color:white;border:none;padding:16px 32px;border-radius:12px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(255,107,26,.2)}
+.btn-primary:hover{background:var(--orange-hot)}
+.btn-primary svg{width:20px;height:20px;stroke:white;fill:none;stroke-width:2}
+.btn-secondary{background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.1);padding:16px 32px;border-radius:12px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer}
+.btn-secondary:hover{background:rgba(255,255,255,.15)}
+
+/* Footer */
+footer{background:var(--navy-light);border-top:1px solid rgba(255,255,255,.05);padding:56px 24px}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
+.footer-brand p{color:var(--steel);font-size:14px;margin-top:16px;max-width:360px;line-height:1.7}
+.footer-col h4{color:white;font-size:14px;font-weight:600;margin-bottom:16px}
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:8px}
+.footer-col a{color:var(--steel);font-size:14px}
+.footer-col a:hover{color:var(--orange)}
+.footer-bottom{max-width:1200px;margin:32px auto 0;padding-top:32px;border-top:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;font-size:12px;color:rgba(139,157,175,.6)}
+
+/* Responsive */
+@media(max-width:768px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .stat:nth-child(2){border-right:none}
+  .how-grid,.compare-grid{grid-template-columns:1fr}
+  .footer-inner{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .footer-bottom{flex-direction:column;gap:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+<div class="nav-inner">
+  <div class="logo">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg></div>
+    <div class="logo-text mono">Compare<span>BTP</span></div>
+  </div>
+  <div class="nav-links">
+    <a href="#fonctionnement">Fonctionnement</a>
+    <a href="#comparer">Comparer</a>
+    <a href="#enseignes">Enseignes</a>
+  </div>
+  <div class="nav-loc"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg> Côte d'Azur</div>
+</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+<div class="hero-bg blueprint"></div>
+<div class="hero-accent"></div>
+<div class="hero-inner">
+  <div class="hero-badge mono"><span class="dot"></span> <span>CÔTE D'AZUR &bull; PACA</span></div>
+  <h1>Comparez les prix<br><em>matériaux &amp; outillage</em><br>de toutes les enseignes</h1>
+  <p class="hero-desc">Trouvez le meilleur prix pour vos matériaux de construction entre Leroy Merlin, Castorama, Brico Dépôt, Würth et plus. Optimisez votre trajet entre les magasins.</p>
+  <div class="search-box">
+    <input type="text" placeholder="Rechercher un produit, une marque, une référence...">
+    <button class="search-btn">Comparer</button>
+  </div>
+  <div class="search-tags">
+    <span>Perceuse Bosch</span><span>Ciment 35kg</span><span>Tournevis</span><span>Parquet</span>
+  </div>
+</div>
+<div class="hero-fade"></div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+<div class="stats-grid">
+  <div class="stat"><div class="stat-val mono">60 000+</div><div class="stat-label">Produits comparés</div></div>
+  <div class="stat"><div class="stat-val mono">6</div><div class="stat-label">Enseignes partenaires</div></div>
+  <div class="stat"><div class="stat-val mono">25%</div><div class="stat-label">D'économie moyenne</div></div>
+  <div class="stat"><div class="stat-val mono">06 / 83</div><div class="stat-label">Départements couverts</div></div>
+</div>
+</section>
+
+<!-- STORES -->
+<section class="stores" id="enseignes">
+<p class="section-tag mono">Enseignes comparées</p>
+<h2>Tous les prix, un seul endroit</h2>
+<div class="stores-grid">
+  <div class="store-card"><div class="store-short mono">LM</div><div class="store-name">Leroy Merlin</div></div>
+  <div class="store-card"><div class="store-short mono">CASTO</div><div class="store-name">Castorama</div></div>
+  <div class="store-card"><div class="store-short mono">BD</div><div class="store-name">Brico Dépôt</div></div>
+  <div class="store-card"><div class="store-short mono">WÜRTH</div><div class="store-name">Würth</div></div>
+  <div class="store-card"><div class="store-short mono">MM</div><div class="store-name">ManoMano</div></div>
+  <div class="store-card"><div class="store-short mono">PP</div><div class="store-name">Point P</div></div>
+</div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how blueprint" id="fonctionnement">
+<div style="text-align:center">
+  <p class="section-tag mono">Comment ça marche</p>
+  <h2>Simple comme 1, 2, 3</h2>
+</div>
+<div class="how-grid">
+  <div class="how-card">
+    <div class="how-top">
+      <div class="how-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg></div>
+      <span class="how-step mono">01</span>
+    </div>
+    <h3>Recherchez</h3>
+    <p>Tapez le nom du produit, la marque ou la référence. Notre moteur compare instantanément les prix de toutes les enseignes.</p>
+  </div>
+  <div class="how-card">
+    <div class="how-top">
+      <div class="how-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg></div>
+      <span class="how-step mono">02</span>
+    </div>
+    <h3>Comparez</h3>
+    <p>Visualisez les prix côte à côte. Ajoutez au panier les produits au meilleur prix, même de différents magasins.</p>
+  </div>
+  <div class="how-card">
+    <div class="how-top">
+      <div class="how-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"/></svg></div>
+      <span class="how-step mono">03</span>
+    </div>
+    <h3>Optimisez</h3>
+    <p>Obtenez l'itinéraire optimisé pour récupérer vos achats dans chaque magasin. On vous dit par où commencer.</p>
+  </div>
+</div>
+</section>
+
+<!-- COMPARISONS -->
+<section class="compare" id="comparer">
+<div style="text-align:center">
+  <p class="section-tag mono">Exemples de comparaisons</p>
+  <h2>Voyez la différence</h2>
+  <p class="compare-desc">Les prix varient considérablement d'une enseigne à l'autre. Ne payez plus jamais trop cher.</p>
+</div>
+<div class="compare-grid">
+  <!-- Product 1 -->
+  <div class="prod-card">
+    <div class="prod-head">
+      <div class="prod-icon"><svg viewBox="0 0 64 64" fill="none" width="40" height="40"><rect x="8" y="20" width="32" height="24" rx="3" fill="#0B1D3A" opacity=".9"/><rect x="40" y="28" width="18" height="8" rx="1" fill="#FF6B1A"/><circle cx="20" cy="32" r="6" fill="#FF6B1A" opacity=".3"/><rect x="12" y="26" width="4" height="12" rx="1" fill="#FF8F4F"/><rect x="55" y="30" width="6" height="4" rx=".5" fill="#8B9DAF"/></svg></div>
+      <div><div class="prod-cat mono">Outillage électroportatif</div><div class="prod-name">Perceuse-visseuse sans fil 18V BOSCH Professional GSR 18V-55</div></div>
+    </div>
+    <div class="prod-prices">
+      <div class="price-row best"><span class="price-store"><svg class="check-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg> Brico Dépôt</span><span class="price-val mono">129,00 €</span></div>
+      <div class="price-row"><span class="price-store">ManoMano</span><span class="price-val mono">139,50 €</span></div>
+      <div class="price-row"><span class="price-store">Leroy Merlin</span><span class="price-val mono">149,00 €</span></div>
+      <div class="price-row"><span class="price-store">Castorama</span><span class="price-val mono">154,90 €</span></div>
+    </div>
+    <div class="prod-saving"><span>Économie possible</span><span class="mono">jusqu'à -17%</span></div>
+  </div>
+  <!-- Product 2 -->
+  <div class="prod-card">
+    <div class="prod-head">
+      <div class="prod-icon"><svg viewBox="0 0 64 64" fill="none" width="40" height="40"><path d="M14 18h36l-4 40H18L14 18z" fill="#8B9DAF" opacity=".8"/><rect x="18" y="10" width="28" height="12" rx="2" fill="#0B1D3A" opacity=".7"/><text x="32" y="42" text-anchor="middle" fill="#0B1D3A" font-size="7" font-weight="700" font-family="monospace">35 KG</text></svg></div>
+      <div><div class="prod-cat mono">Gros Oeuvre</div><div class="prod-name">Sac ciment gris CEM II 32.5 — 35 kg</div></div>
+    </div>
+    <div class="prod-prices">
+      <div class="price-row best"><span class="price-store"><svg class="check-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg> Point P</span><span class="price-val mono">6,90 €</span></div>
+      <div class="price-row"><span class="price-store">Brico Dépôt</span><span class="price-val mono">7,50 €</span></div>
+      <div class="price-row"><span class="price-store">Leroy Merlin</span><span class="price-val mono">8,20 €</span></div>
+      <div class="price-row"><span class="price-store">Castorama</span><span class="price-val mono">8,90 €</span></div>
+    </div>
+    <div class="prod-saving"><span>Économie possible</span><span class="mono">jusqu'à -22%</span></div>
+  </div>
+  <!-- Product 3 -->
+  <div class="prod-card">
+    <div class="prod-head">
+      <div class="prod-icon"><svg viewBox="0 0 64 64" fill="none" width="40" height="40"><g transform="translate(14,20)"><circle cx="4" cy="4" r="4" fill="#8B9DAF"/><rect x="8" y="2" width="20" height="4" rx="1" fill="#0B1D3A" opacity=".6"/></g><g transform="translate(28,24)"><circle cx="4" cy="4" r="4" fill="#8B9DAF"/><rect x="8" y="2" width="20" height="4" rx="1" fill="#0B1D3A" opacity=".6"/></g><g transform="translate(42,28)"><circle cx="4" cy="4" r="4" fill="#8B9DAF"/><rect x="8" y="2" width="12" height="4" rx="1" fill="#0B1D3A" opacity=".6"/></g></svg></div>
+      <div><div class="prod-cat mono">Visserie &amp; Fixation</div><div class="prod-name">Lot 200 vis à bois TX 4×40 mm inox A2</div></div>
+    </div>
+    <div class="prod-prices">
+      <div class="price-row best"><span class="price-store"><svg class="check-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg> Würth</span><span class="price-val mono">18,90 €</span></div>
+      <div class="price-row"><span class="price-store">Brico Dépôt</span><span class="price-val mono">21,00 €</span></div>
+      <div class="price-row"><span class="price-store">ManoMano</span><span class="price-val mono">22,30 €</span></div>
+      <div class="price-row"><span class="price-store">Leroy Merlin</span><span class="price-val mono">24,50 €</span></div>
+    </div>
+    <div class="prod-saving"><span>Économie possible</span><span class="mono">jusqu'à -23%</span></div>
+  </div>
+</div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+<div class="cta-bg blueprint"></div>
+<div class="cta-inner">
+  <h2>Arrêtez de payer trop cher<br><em>vos matériaux</em></h2>
+  <p>Rejoignez des milliers de professionnels et particuliers qui économisent sur leurs achats BTP grâce à CompareBTP.</p>
+  <div class="cta-btns">
+    <button class="btn-primary"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg> Commencer à comparer</button>
+    <button class="btn-secondary">En savoir plus</button>
+  </div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+<div class="footer-inner">
+  <div class="footer-brand">
+    <div class="logo">
+      <div class="logo-icon" style="width:28px;height:28px"><svg viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" stroke="white" fill="none" stroke-width="2"/></svg></div>
+      <div class="logo-text mono" style="font-size:16px">Compare<span>BTP</span></div>
+    </div>
+    <p>Le premier comparateur de prix dédié aux matériaux de construction et à l'outillage professionnel sur la Côte d'Azur. Comparez, économisez, optimisez vos trajets.</p>
+  </div>
+  <div class="footer-col">
+    <h4>Navigation</h4>
+    <ul><li><a href="#">Accueil</a></li><li><a href="#comparer">Comparer</a></li><li><a href="#enseignes">Enseignes</a></li><li><a href="#fonctionnement">Comment ça marche</a></li></ul>
+  </div>
+  <div class="footer-col">
+    <h4>Légal</h4>
+    <ul><li><a href="#">Mentions légales</a></li><li><a href="#">Politique de confidentialité</a></li><li><a href="#">CGU</a></li><li><a href="#">Contact</a></li></ul>
+  </div>
+</div>
+<div class="footer-bottom">
+  <p>&copy; 2026 CompareBTP. Tous droits réservés. Les prix affichés sont donnés à titre indicatif.</p>
+  <p>Comparateur indépendant &bull; Non affilié aux enseignes mentionnées</p>
+</div>
+</footer>
+
+</body>
+</html>

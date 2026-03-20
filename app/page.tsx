@@ -423,7 +423,7 @@ export default async function Home() {
           </h2>
           <p className="text-steel text-lg mb-10 max-w-xl mx-auto">
             Rejoignez des milliers de professionnels et particuliers qui
-            économisent sur leurs achats BTP grâce à CompareBTP.
+            économisent sur leurs achats BTP grâce à BatiPrix.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
