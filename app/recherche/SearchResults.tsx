@@ -217,12 +217,25 @@ export function SearchResults() {
               />
             </>
           ) : (
-            <div className="text-center py-16">
-              <MagnifyingGlassIcon className="w-12 h-12 text-cream-dark mx-auto mb-4" />
+            <div className="text-center py-16 bg-white rounded-xl border border-cream-dark/20 px-6">
+              <div className="w-16 h-16 bg-cream rounded-full flex items-center justify-center mx-auto mb-4">
+                <MagnifyingGlassIcon className="w-8 h-8 text-steel/30" />
+              </div>
               <h2 className="text-lg font-semibold text-navy mb-2">Aucun résultat</h2>
-              <p className="text-steel text-sm">
-                Essayez avec d&apos;autres mots-clés ou modifiez les filtres.
+              <p className="text-steel text-sm mb-6 max-w-sm mx-auto">
+                Aucun produit ne correspond à votre recherche. Essayez avec d&apos;autres mots-clés ou modifiez les filtres.
               </p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {["Perceuse", "Ciment", "Peinture", "Tournevis", "Vis", "Parquet"].map((s) => (
+                  <a
+                    key={s}
+                    href={`/recherche?q=${encodeURIComponent(s)}`}
+                    className="text-xs bg-cream hover:bg-orange/10 text-navy hover:text-orange px-3 py-1.5 rounded-full transition-colors border border-cream-dark/30"
+                  >
+                    {s}
+                  </a>
+                ))}
+              </div>
             </div>
           )}
         </div>
