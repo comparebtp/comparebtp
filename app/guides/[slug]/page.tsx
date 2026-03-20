@@ -5,19 +5,97 @@ import { Footer } from "@/components/Footer";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-const ARTICLE_IMAGES: Record<string, { image: string; readTime: string }> = {
-  "comment-choisir-perceuse": { image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=1200&h=600&fit=crop", readTime: "8 min" },
-  "prix-materiaux-construction-cote-azur": { image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&h=600&fit=crop", readTime: "12 min" },
-  "guide-peinture-interieure": { image: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=1200&h=600&fit=crop", readTime: "10 min" },
-  "meilleurs-magasins-btp-nice": { image: "https://images.unsplash.com/photo-1513467535987-fd81bc7d62f8?w=1200&h=600&fit=crop", readTime: "7 min" },
-  "acheter-materiaux-italie-frontiere": { image: "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=1200&h=600&fit=crop", readTime: "8 min" },
-  "economiser-travaux-renovation": { image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&h=600&fit=crop", readTime: "5 min" },
-  "renovation-salle-de-bain-budget": { image: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&h=600&fit=crop", readTime: "15 min" },
-  "isoler-maison-cote-azur": { image: "https://images.unsplash.com/photo-1607400201889-565b1ee75f8e?w=1200&h=600&fit=crop", readTime: "11 min" },
-  "comparatif-visserie-fixation": { image: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=1200&h=600&fit=crop", readTime: "6 min" },
-  "outillage-electroportatif-pro": { image: "https://images.unsplash.com/photo-1530124566582-a45a7c0be13a?w=1200&h=600&fit=crop", readTime: "9 min" },
-  "carrelage-sol-mur-guide": { image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=1200&h=600&fit=crop", readTime: "10 min" },
-  "electricite-maison-normes-prix": { image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1200&h=600&fit=crop", readTime: "13 min" },
+const ARTICLE_IMAGES: Record<string, { image: string; readTime: string; sectionImages?: string[] }> = {
+  "comment-choisir-perceuse": {
+    image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=1200&h=600&fit=crop",
+    readTime: "8 min",
+    sectionImages: [
+      "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=900&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=900&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1530124566582-a45a7c0be13a?w=900&h=400&fit=crop",
+    ],
+  },
+  "prix-materiaux-construction-cote-azur": {
+    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&h=600&fit=crop",
+    readTime: "12 min",
+    sectionImages: [
+      "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=900&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1541123603104-512919d6a96c?w=900&h=400&fit=crop",
+    ],
+  },
+  "guide-peinture-interieure": {
+    image: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=1200&h=600&fit=crop",
+    readTime: "10 min",
+    sectionImages: [
+      "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=900&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=900&h=400&fit=crop",
+    ],
+  },
+  "meilleurs-magasins-btp-nice": {
+    image: "https://images.unsplash.com/photo-1513467535987-fd81bc7d62f8?w=1200&h=600&fit=crop",
+    readTime: "7 min",
+    sectionImages: [
+      "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=900&h=400&fit=crop",
+    ],
+  },
+  "acheter-materiaux-italie-frontiere": {
+    image: "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=1200&h=600&fit=crop",
+    readTime: "8 min",
+    sectionImages: [
+      "https://images.unsplash.com/photo-1534445867742-43195f401b6c?w=900&h=400&fit=crop",
+    ],
+  },
+  "economiser-travaux-renovation": {
+    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&h=600&fit=crop",
+    readTime: "5 min",
+    sectionImages: [
+      "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=900&h=400&fit=crop",
+    ],
+  },
+  "renovation-salle-de-bain-budget": {
+    image: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&h=600&fit=crop",
+    readTime: "15 min",
+    sectionImages: [
+      "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=900&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1620626011761-996317b8d101?w=900&h=400&fit=crop",
+    ],
+  },
+  "isoler-maison-cote-azur": {
+    image: "https://images.unsplash.com/photo-1607400201889-565b1ee75f8e?w=1200&h=600&fit=crop",
+    readTime: "11 min",
+    sectionImages: [
+      "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=900&h=400&fit=crop",
+    ],
+  },
+  "comparatif-visserie-fixation": {
+    image: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=1200&h=600&fit=crop",
+    readTime: "6 min",
+    sectionImages: [
+      "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=900&h=400&fit=crop",
+    ],
+  },
+  "outillage-electroportatif-pro": {
+    image: "https://images.unsplash.com/photo-1530124566582-a45a7c0be13a?w=1200&h=600&fit=crop",
+    readTime: "9 min",
+    sectionImages: [
+      "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=900&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=900&h=400&fit=crop",
+    ],
+  },
+  "carrelage-sol-mur-guide": {
+    image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=1200&h=600&fit=crop",
+    readTime: "10 min",
+    sectionImages: [
+      "https://images.unsplash.com/photo-1620626011761-996317b8d101?w=900&h=400&fit=crop",
+    ],
+  },
+  "electricite-maison-normes-prix": {
+    image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1200&h=600&fit=crop",
+    readTime: "13 min",
+    sectionImages: [
+      "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=900&h=400&fit=crop",
+    ],
+  },
 };
 
 const ARTICLES: Record<string, { title: string; category: string; date: string; content: string }> = {
@@ -712,6 +790,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
 
   // Section counter for alternating styles
   let sectionIndex = 0;
+  const sectionImages = ARTICLE_IMAGES[slug]?.sectionImages || [];
+  let imageIndex = 0;
 
   // Pro magazine-style rendering
   const renderContent = (content: string) => {
@@ -792,16 +872,34 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         flushTable();
       }
 
-      // H2 — Major section with icon bar and anchor
+      // H2 — Major section with icon bar, anchor, and optional section image
       if (line.startsWith("## ")) {
         flushList();
         const title = line.replace("## ", "");
         const id = title.toLowerCase().replace(/[^\w]+/g, "-").replace(/-+$/, "");
         sectionIndex++;
-        const isEven = sectionIndex % 2 === 0;
+
+        // Insert section image before even sections (between sections)
+        if (sectionIndex > 1 && imageIndex < sectionImages.length) {
+          elements.push(
+            <div key={`img-${i}`} className="my-10 -mx-6 md:-mx-10 lg:-mx-20 relative h-[220px] md:h-[300px] rounded-2xl overflow-hidden">
+              <Image
+                src={sectionImages[imageIndex]}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="100vw"
+                unoptimized
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-navy/30 to-transparent" />
+            </div>
+          );
+          imageIndex++;
+        }
+
         elements.push(
-          <div key={i} id={id} className="scroll-mt-28 mt-10 mb-5 first:mt-0">
-            <div className={`flex items-center gap-3 ${isEven ? "" : ""}`}>
+          <div key={i} id={id} className="scroll-mt-32 mt-10 mb-5 first:mt-0">
+            <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-orange/10 flex items-center justify-center flex-shrink-0">
                 <span className="text-orange font-bold text-sm">{String(sectionIndex).padStart(2, "0")}</span>
               </div>
@@ -1004,16 +1102,38 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         </div>
       )}
 
-      <main className="max-w-4xl mx-auto px-6 py-8 md:py-12">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Article content */}
-          <article className="flex-1 min-w-0">
-            <div className="bg-white rounded-2xl border border-cream-dark/20 p-6 md:p-10 text-navy/80 leading-relaxed prose-custom">
-              {renderContent(article.content)}
-            </div>
+      <main className="pb-12">
+        {/* Floating TOC bar */}
+        <div className="bg-white border-b border-cream-dark/20 sticky top-[64px] z-20">
+          <div className="max-w-5xl mx-auto px-6">
+            <nav className="flex items-center gap-1 overflow-x-auto py-2 scrollbar-hide">
+              <span className="text-[10px] text-steel/40 font-semibold uppercase tracking-wider mr-2 flex-shrink-0">Sommaire</span>
+              {article.content.trim().split("\n")
+                .filter(l => l.startsWith("## "))
+                .map((l, i) => {
+                  const title = l.replace("## ", "");
+                  const id = title.toLowerCase().replace(/[^\w]+/g, "-").replace(/-+$/, "");
+                  return (
+                    <a key={i} href={`#${id}`} className="flex-shrink-0 text-xs text-steel hover:text-orange hover:bg-orange/5 transition-colors px-3 py-1.5 rounded-full border border-transparent hover:border-orange/20">
+                      {title}
+                    </a>
+                  );
+                })}
+            </nav>
+          </div>
+        </div>
 
-            {/* Author box */}
-            <div className="mt-8 bg-white rounded-2xl border border-cream-dark/20 p-6 flex items-center gap-4">
+        {/* Article content — full width, no card wrapper */}
+        <article className="max-w-3xl mx-auto px-6 pt-10">
+          <div className="text-navy/80 leading-relaxed">
+            {renderContent(article.content)}
+          </div>
+        </article>
+
+        {/* Author + share */}
+        <div className="max-w-3xl mx-auto px-6 mt-12">
+          <div className="border-t border-cream-dark/30 pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
                 <svg className="w-6 h-6 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
@@ -1021,92 +1141,66 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
               </div>
               <div>
                 <p className="font-semibold text-navy text-sm">Rédigé par l&apos;équipe BatiPrix</p>
-                <p className="text-xs text-steel">Comparateur de prix BTP sur la Côte d&apos;Azur &middot; Mis à jour le {article.date}</p>
+                <p className="text-xs text-steel">Mis à jour le {article.date}</p>
               </div>
             </div>
-          </article>
-
-          {/* Sidebar */}
-          <aside className="lg:w-72 flex-shrink-0 space-y-6">
-            {/* Quick nav */}
-            <div className="bg-white rounded-2xl border border-cream-dark/20 p-5 sticky top-24 z-10">
-              <h3 className="font-bold text-navy text-sm mb-3 flex items-center gap-2">
-                <svg className="w-4 h-4 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                </svg>
-                Dans cet article
-              </h3>
-              <nav className="space-y-1">
-                {article.content.trim().split("\n")
-                  .filter(l => l.startsWith("## "))
-                  .map((l, i) => {
-                    const title = l.replace("## ", "");
-                    const id = title.toLowerCase().replace(/[^\w]+/g, "-").replace(/-+$/, "");
-                    return (
-                      <a key={i} href={`#${id}`} className="flex items-center gap-2 text-xs text-steel hover:text-orange transition-colors py-1.5 border-l-2 border-cream-dark/30 hover:border-orange pl-3 group">
-                        <span className="w-4 h-4 rounded bg-cream-dark/20 group-hover:bg-orange/10 flex items-center justify-center text-[9px] font-bold text-steel/50 group-hover:text-orange transition-colors">
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        {title}
-                      </a>
-                    );
-                  })}
-              </nav>
-            </div>
-
-            {/* CTA */}
-            <div className="bg-gradient-to-br from-orange to-orange/80 rounded-2xl p-5 text-white">
-              <h3 className="font-bold text-sm mb-2">Comparez les prix</h3>
-              <p className="text-xs text-white/80 mb-3 leading-relaxed">
-                Trouvez le meilleur prix parmi 3 000+ produits BTP.
-              </p>
-              <Link
-                href="/recherche"
-                className="block text-center bg-white text-orange px-4 py-2 rounded-lg text-sm font-bold hover:bg-white/90 transition-colors"
-              >
-                Rechercher
-              </Link>
-            </div>
-
-            {/* Related guides */}
-            {related.length > 0 && (
-              <div className="bg-white rounded-2xl border border-cream-dark/20 p-5">
-                <h3 className="font-bold text-navy text-sm mb-3">Guides similaires</h3>
-                <div className="space-y-3">
-                  {related.map(([relSlug, relArticle]) => {
-                    const relMeta = ARTICLE_IMAGES[relSlug];
-                    return (
-                      <Link
-                        key={relSlug}
-                        href={`/guides/${relSlug}`}
-                        className="flex gap-3 group"
-                      >
-                        {relMeta?.image && (
-                          <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 relative">
-                            <Image
-                              src={relMeta.image.replace('w=1200&h=600', 'w=200&h=200')}
-                              alt={relArticle.title}
-                              fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-300"
-                              sizes="64px"
-                              unoptimized
-                            />
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                          <p className="text-xs font-semibold text-navy group-hover:text-orange transition-colors line-clamp-2 leading-snug">
-                            {relArticle.title}
-                          </p>
-                          <p className="text-[10px] text-steel mt-1">{relMeta?.readTime || "5 min"}</p>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </aside>
+            <Link href="/guides" className="text-sm text-orange hover:text-orange/80 font-medium flex items-center gap-1 transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+              </svg>
+              Tous les guides
+            </Link>
+          </div>
         </div>
+
+        {/* Related guides — horizontal cards */}
+        {related.length > 0 && (
+          <div className="max-w-5xl mx-auto px-6 mt-12">
+            <h2 className="text-lg font-bold text-navy mb-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-cream-dark/30" />
+              <span className="px-4">Guides similaires</span>
+              <div className="h-px flex-1 bg-cream-dark/30" />
+            </h2>
+            <div className="grid sm:grid-cols-2 gap-6">
+              {related.map(([relSlug, relArticle]) => {
+                const relMeta = ARTICLE_IMAGES[relSlug];
+                return (
+                  <Link
+                    key={relSlug}
+                    href={`/guides/${relSlug}`}
+                    className="group bg-white rounded-2xl overflow-hidden border border-cream-dark/20 hover:shadow-lg hover:border-orange/20 transition-all duration-300 hover:-translate-y-1"
+                  >
+                    {relMeta?.image && (
+                      <div className="relative h-40 overflow-hidden">
+                        <Image
+                          src={relMeta.image.replace('w=1200&h=600', 'w=600&h=300')}
+                          alt={relArticle.title}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          sizes="(max-width: 640px) 100vw, 50vw"
+                          unoptimized
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-navy/50 to-transparent" />
+                      </div>
+                    )}
+                    <div className="p-5">
+                      <span className="text-[10px] font-bold text-orange uppercase tracking-wide">{relArticle.category}</span>
+                      <h3 className="font-bold text-navy mt-1 group-hover:text-orange transition-colors line-clamp-2">
+                        {relArticle.title}
+                      </h3>
+                      <span className="text-xs text-steel mt-2 flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                        {relMeta?.readTime || "5 min"}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Bottom CTA */}
         <div className="mt-12 relative bg-navy rounded-3xl overflow-hidden p-8 md:p-12">
