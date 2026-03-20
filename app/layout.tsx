@@ -22,6 +22,9 @@ export const metadata: Metadata = {
     title: "BatiPrix — Comparateur de prix BTP",
     description: "Comparez les prix des matériaux de construction sur la Côte d'Azur",
   },
+  verification: {
+    google: "J17mXRcWkdQPf9e3V3PUMA_nHG1GU0-qpqKTlbrt6Do",
+  },
   robots: {
     index: true,
     follow: true,
