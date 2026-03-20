@@ -710,31 +710,58 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
     notFound();
   }
 
-  // Simple markdown-like rendering
+  // Section counter for alternating styles
+  let sectionIndex = 0;
+
+  // Pro magazine-style rendering
   const renderContent = (content: string) => {
     const lines = content.trim().split("\n");
     const elements: React.ReactNode[] = [];
     let inTable = false;
     let tableRows: string[][] = [];
+    let inList = false;
+    let listItems: React.ReactNode[] = [];
+    let listType: "ul" | "ol" = "ul";
+
+    const flushList = () => {
+      if (listItems.length > 0) {
+        if (listType === "ol") {
+          elements.push(
+            <ol key={`list-${elements.length}`} className="space-y-2 my-4 pl-1">
+              {listItems}
+            </ol>
+          );
+        } else {
+          elements.push(
+            <ul key={`list-${elements.length}`} className="space-y-2 my-4 pl-1">
+              {listItems}
+            </ul>
+          );
+        }
+        listItems = [];
+        inList = false;
+      }
+    };
 
     const flushTable = () => {
       if (tableRows.length > 0) {
         elements.push(
-          <div key={`table-${elements.length}`} className="overflow-x-auto my-4">
-            <table className="w-full text-sm border-collapse">
+          <div key={`table-${elements.length}`} className="overflow-x-auto my-6 rounded-xl border border-cream-dark/20">
+            <table className="w-full text-sm">
               <thead>
-                <tr className="border-b-2 border-cream-dark">
-                  {tableRows[0].map((cell, i) => (
-                    <th key={i} className="text-left py-2 pr-4 font-semibold text-navy">{cell.trim()}</th>
+                <tr className="bg-navy">
+                  {tableRows[0].map((cell, ci) => (
+                    <th key={ci} className="text-left py-3 px-4 font-semibold text-white text-xs uppercase tracking-wide">{cell.trim()}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {tableRows.slice(2).map((row, i) => (
-                  <tr key={i} className="border-b border-cream-dark/30">
-                    {row.map((cell, j) => (
-                      <td key={j} className="py-2 pr-4">{cell.trim()}</td>
-                    ))}
+                {tableRows.slice(2).map((row, ri) => (
+                  <tr key={ri} className={`border-b border-cream-dark/15 ${ri % 2 === 0 ? "bg-cream/30" : "bg-white"}`}>
+                    {row.map((cell, ci) => {
+                      const rendered = cell.trim().replace(/\*\*(.+?)\*\*/g, "<strong class='text-navy'>$1</strong>");
+                      return <td key={ci} className="py-3 px-4 text-navy/70" dangerouslySetInnerHTML={{ __html: rendered }} />;
+                    })}
                   </tr>
                 ))}
               </tbody>
@@ -745,10 +772,18 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
       }
     };
 
+    const renderInline = (text: string) => {
+      return text
+        .replace(/\*\*(.+?)\*\*/g, "<strong class='text-navy font-semibold'>$1</strong>")
+        .replace(/\~(\d+[\-–]\d+€?\s*€?)\~/g, "<span class='text-orange font-bold'>$1</span>");
+    };
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
+      // Table
       if (line.startsWith("|")) {
+        flushList();
         inTable = true;
         tableRows.push(line.split("|").filter(Boolean));
         continue;
@@ -757,32 +792,127 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         flushTable();
       }
 
+      // H2 — Major section with icon bar and anchor
       if (line.startsWith("## ")) {
-        elements.push(<h2 key={i} className="text-xl font-bold text-navy mt-8 mb-3">{line.replace("## ", "")}</h2>);
-      } else if (line.startsWith("### ")) {
-        elements.push(<h3 key={i} className="text-lg font-semibold text-navy mt-6 mb-2">{line.replace("### ", "")}</h3>);
-      } else if (line.startsWith("- **")) {
+        flushList();
+        const title = line.replace("## ", "");
+        const id = title.toLowerCase().replace(/[^\w]+/g, "-").replace(/-+$/, "");
+        sectionIndex++;
+        const isEven = sectionIndex % 2 === 0;
+        elements.push(
+          <div key={i} id={id} className="scroll-mt-28 mt-10 mb-5 first:mt-0">
+            <div className={`flex items-center gap-3 ${isEven ? "" : ""}`}>
+              <div className="w-10 h-10 rounded-xl bg-orange/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-orange font-bold text-sm">{String(sectionIndex).padStart(2, "0")}</span>
+              </div>
+              <h2 className="text-xl md:text-2xl font-bold text-navy leading-snug">{title}</h2>
+            </div>
+            <div className="h-px bg-gradient-to-r from-orange/30 via-cream-dark/20 to-transparent mt-3" />
+          </div>
+        );
+        continue;
+      }
+
+      // H3 — Subsection (brand cards style)
+      if (line.startsWith("### ")) {
+        flushList();
+        const title = line.replace("### ", "");
+        elements.push(
+          <div key={i} className="mt-6 mb-3 flex items-center gap-2">
+            <div className="w-1.5 h-6 bg-orange rounded-full" />
+            <h3 className="text-lg font-bold text-navy">{title}</h3>
+          </div>
+        );
+        continue;
+      }
+
+      // Tip/Conseil block: line starting with "**Notre conseil**" or "**Conseil**"
+      if (line.match(/^\*\*(Notre\s+)?conseil\*\*/i) || line.match(/^\*\*Astuce\*\*/i) || line.match(/^\*\*Bon à savoir\*\*/i)) {
+        flushList();
+        const rendered = renderInline(line);
+        elements.push(
+          <div key={i} className="my-5 bg-orange/5 border-l-4 border-orange rounded-r-xl p-4 flex gap-3">
+            <div className="w-8 h-8 rounded-lg bg-orange/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg className="w-4 h-4 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+              </svg>
+            </div>
+            <div className="text-sm text-navy/80 leading-relaxed" dangerouslySetInnerHTML={{ __html: rendered }} />
+          </div>
+        );
+        continue;
+      }
+
+      // Bold list item with description: "- **Name** : description"
+      if (line.startsWith("- **")) {
+        if (!inList || listType !== "ul") { flushList(); inList = true; listType = "ul"; }
         const match = line.match(/- \*\*(.+?)\*\*\s*:?\s*(.*)/);
         if (match) {
-          elements.push(
-            <li key={i} className="ml-6 mb-1">
-              <strong className="text-navy">{match[1]}</strong>{match[2] ? ` : ${match[2]}` : ""}
+          const desc = match[2] ? renderInline(match[2]) : "";
+          listItems.push(
+            <li key={i} className="flex gap-3 items-start bg-cream/40 rounded-lg p-3 border border-cream-dark/10">
+              <div className="w-6 h-6 rounded-md bg-navy/5 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-3.5 h-3.5 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+              </div>
+              <div>
+                <span className="font-semibold text-navy text-sm">{match[1]}</span>
+                {desc && <span className="text-navy/60 text-sm" dangerouslySetInnerHTML={{ __html: ` — ${desc}` }} />}
+              </div>
             </li>
           );
         }
-      } else if (line.startsWith("- ")) {
-        elements.push(<li key={i} className="ml-6 mb-1">{line.replace("- ", "")}</li>);
-      } else if (line.match(/^\d+\. /)) {
-        const liContent = line.replace(/^\d+\.\s/, "").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-        elements.push(<li key={i} className="ml-6 mb-1 list-decimal" dangerouslySetInnerHTML={{ __html: liContent }} />);
-      } else if (line.trim() === "") {
         continue;
-      } else {
-        // Bold text
-        const rendered = line.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-        elements.push(<p key={i} className="mb-3" dangerouslySetInnerHTML={{ __html: rendered }} />);
       }
+
+      // Regular list item
+      if (line.startsWith("- ")) {
+        if (!inList || listType !== "ul") { flushList(); inList = true; listType = "ul"; }
+        const content = renderInline(line.replace("- ", ""));
+        listItems.push(
+          <li key={i} className="flex gap-2.5 items-start">
+            <svg className="w-4 h-4 text-orange flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+            <span className="text-sm text-navy/70 leading-relaxed" dangerouslySetInnerHTML={{ __html: content }} />
+          </li>
+        );
+        continue;
+      }
+
+      // Numbered list item
+      if (line.match(/^\d+\. /)) {
+        const num = line.match(/^(\d+)\./)?.[1] || "1";
+        if (!inList || listType !== "ol") { flushList(); inList = true; listType = "ol"; }
+        const content = renderInline(line.replace(/^\d+\.\s/, ""));
+        listItems.push(
+          <li key={i} className="flex gap-3 items-start">
+            <span className="w-7 h-7 rounded-lg bg-navy text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5 font-[var(--font-display)]">
+              {num}
+            </span>
+            <span className="text-sm text-navy/70 leading-relaxed flex-1 pt-1" dangerouslySetInnerHTML={{ __html: content }} />
+          </li>
+        );
+        continue;
+      }
+
+      // Empty line — flush lists
+      if (line.trim() === "") {
+        flushList();
+        continue;
+      }
+
+      // Paragraph with price highlight
+      flushList();
+      let rendered = renderInline(line);
+      // Highlight price ranges like "130€" or "130-155€" or "~130-155€"
+      rendered = rendered.replace(/(\~?\d+[\s]*(?:[-–à]\s*\d+)?\s*€)/g, "<span class='text-orange font-semibold'>$1</span>");
+      elements.push(
+        <p key={i} className="mb-4 text-[15px] text-navy/70 leading-[1.8]" dangerouslySetInnerHTML={{ __html: rendered }} />
+      );
     }
+    flushList();
     flushTable();
     return elements;
   };
@@ -906,14 +1036,21 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
                 </svg>
                 Dans cet article
               </h3>
-              <nav className="space-y-1.5">
+              <nav className="space-y-1">
                 {article.content.trim().split("\n")
                   .filter(l => l.startsWith("## "))
-                  .map((l, i) => (
-                    <div key={i} className="text-xs text-steel hover:text-orange transition-colors cursor-default py-1 border-l-2 border-cream-dark/30 pl-3">
-                      {l.replace("## ", "")}
-                    </div>
-                  ))}
+                  .map((l, i) => {
+                    const title = l.replace("## ", "");
+                    const id = title.toLowerCase().replace(/[^\w]+/g, "-").replace(/-+$/, "");
+                    return (
+                      <a key={i} href={`#${id}`} className="flex items-center gap-2 text-xs text-steel hover:text-orange transition-colors py-1.5 border-l-2 border-cream-dark/30 hover:border-orange pl-3 group">
+                        <span className="w-4 h-4 rounded bg-cream-dark/20 group-hover:bg-orange/10 flex items-center justify-center text-[9px] font-bold text-steel/50 group-hover:text-orange transition-colors">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        {title}
+                      </a>
+                    );
+                  })}
               </nav>
             </div>
 
