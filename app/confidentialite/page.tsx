@@ -3,6 +3,9 @@ import { Footer } from "@/components/Footer";
 
 export const metadata = {
   title: "Politique de confidentialité — BatiPrix",
+  alternates: {
+    canonical: "https://batiprix.pro/confidentialite",
+  },
 };
 
 export default function Confidentialite() {

@@ -5,6 +5,9 @@ import Link from "next/link";
 export const metadata = {
   title: "À propos — BatiPrix",
   description: "Découvrez BatiPrix, le comparateur de prix dédié aux matériaux de construction et outillage BTP sur la Côte d'Azur.",
+  alternates: {
+    canonical: "https://batiprix.pro/a-propos",
+  },
 };
 
 export default function APropos() {

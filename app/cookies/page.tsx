@@ -3,6 +3,9 @@ import { Footer } from "@/components/Footer";
 
 export const metadata = {
   title: "Politique de cookies — BatiPrix",
+  alternates: {
+    canonical: "https://batiprix.pro/cookies",
+  },
 };
 
 export default function Cookies() {

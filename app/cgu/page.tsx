@@ -3,6 +3,9 @@ import { Footer } from "@/components/Footer";
 
 export const metadata = {
   title: "Conditions Générales d'Utilisation — BatiPrix",
+  alternates: {
+    canonical: "https://batiprix.pro/cgu",
+  },
 };
 
 export default function CGU() {

@@ -7,6 +7,9 @@ import { query } from "@/lib/db";
 export const metadata = {
   title: "Recherche — BatiPrix",
   description: "Recherchez et comparez les prix des matériaux de construction, outillage et fournitures BTP entre toutes les enseignes de la Côte d'Azur.",
+  alternates: {
+    canonical: "https://batiprix.pro/recherche",
+  },
 };
 
 // SSR: pre-fetch initial products for crawlers

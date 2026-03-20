@@ -4,6 +4,9 @@ import { Footer } from "@/components/Footer";
 export const metadata = {
   title: "FAQ — BatiPrix",
   description: "Questions fréquentes sur BatiPrix : comment fonctionnent les comparaisons de prix, la fréquence de mise à jour, nos sources de données.",
+  alternates: {
+    canonical: "https://batiprix.pro/faq",
+  },
 };
 
 const FAQS = [

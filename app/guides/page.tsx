@@ -5,6 +5,9 @@ import { Footer } from "@/components/Footer";
 export const metadata = {
   title: "Guides & Conseils BTP — BatiPrix",
   description: "Guides pratiques pour vos travaux de construction et rénovation sur la Côte d'Azur. Conseils, comparatifs et astuces pour bien choisir vos matériaux.",
+  alternates: {
+    canonical: "https://batiprix.pro/guides",
+  },
 };
 
 const GUIDES = [

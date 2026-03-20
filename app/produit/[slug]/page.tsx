@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { query } from "@/lib/db";
 import { ProductClient } from "./ProductClient";
 
@@ -101,6 +102,10 @@ export default async function ProductPage({
 }) {
   const { slug } = await params;
   const data = await getProduct(slug);
+
+  if (!data) {
+    notFound();
+  }
 
   return (
     <>

@@ -3,6 +3,9 @@ import { Footer } from "@/components/Footer";
 
 export const metadata = {
   title: "Mentions légales — BatiPrix",
+  alternates: {
+    canonical: "https://batiprix.pro/mentions-legales",
+  },
 };
 
 export default function MentionsLegales() {

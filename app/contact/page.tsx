@@ -3,6 +3,9 @@ import { Footer } from "@/components/Footer";
 
 export const metadata = {
   title: "Contact — BatiPrix",
+  alternates: {
+    canonical: "https://batiprix.pro/contact",
+  },
 };
 
 export default function Contact() {

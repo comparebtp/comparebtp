@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     siteName: "BatiPrix",
     locale: "fr_FR",
     type: "website",
+    images: [{ url: "https://batiprix.pro/og-image.png", width: 1200, height: 630, alt: "BatiPrix — Comparateur de prix BTP" }],
   },
   twitter: {
     card: "summary_large_image",

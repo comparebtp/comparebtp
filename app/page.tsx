@@ -202,6 +202,43 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-cream">
+      {/* JSON-LD WebSite schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "BatiPrix",
+            "url": "https://batiprix.pro",
+            "description": "Comparateur de prix matériaux de construction et outillage BTP sur la Côte d'Azur",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://batiprix.pro/recherche?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          }),
+        }}
+      />
+      {/* JSON-LD Organization schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "BatiPrix",
+            "url": "https://batiprix.pro",
+            "logo": "https://batiprix.pro/og-image.png",
+            "sameAs": [],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "email": "batiprix@outlook.fr",
+              "contactType": "customer service"
+            }
+          }),
+        }}
+      />
       <Navbar />
 
       {/* HERO */}

@@ -772,6 +772,21 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
 
   return (
     <div className="min-h-screen bg-cream">
+      {/* JSON-LD Article schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": article.title,
+            "datePublished": "2026-03-15",
+            "author": { "@type": "Organization", "name": "BatiPrix" },
+            "publisher": { "@type": "Organization", "name": "BatiPrix", "url": "https://batiprix.pro" },
+            "mainEntityOfPage": `https://batiprix.pro/guides/${slug}`
+          }),
+        }}
+      />
       <Navbar />
       <main className="pt-24 pb-16 max-w-3xl mx-auto px-6">
         <Link href="/guides" className="text-sm text-orange hover:underline mb-4 inline-block">
