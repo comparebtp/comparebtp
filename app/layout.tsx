@@ -8,6 +8,27 @@ export const metadata: Metadata = {
   description:
     "Comparez les prix des matériaux de construction, outillage et fournitures BTP entre Leroy Merlin, Castorama, Brico Dépôt, Würth et plus. Côte d'Azur & PACA.",
   keywords: "comparateur prix BTP, matériaux construction, outillage, Côte d'Azur, Leroy Merlin, Castorama, Brico Dépôt",
+  metadataBase: new URL("https://batiprix.pro"),
+  openGraph: {
+    title: "BatiPrix — Comparateur de prix BTP Côte d'Azur",
+    description: "Comparez les prix des matériaux de construction entre Leroy Merlin, Castorama, Brico Dépôt, Würth et plus. 3 000+ produits, 244 magasins.",
+    url: "https://batiprix.pro",
+    siteName: "BatiPrix",
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BatiPrix — Comparateur de prix BTP",
+    description: "Comparez les prix des matériaux de construction sur la Côte d'Azur",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "https://batiprix.pro",
+  },
 };
 
 export default function RootLayout({
