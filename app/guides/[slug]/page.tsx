@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import Link from "next/link";
@@ -654,6 +655,35 @@ Toute installation électrique neuve ou rénovée doit respecter cette norme. Po
 
 export function generateStaticParams() {
   return Object.keys(ARTICLES).map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const article = ARTICLES[slug];
+
+  if (!article) {
+    return { title: "Guide introuvable — BatiPrix" };
+  }
+
+  const excerpt = article.content.trim().split("\n").find((l) => l && !l.startsWith("#") && !l.startsWith("-"))?.replace(/\*\*/g, "").slice(0, 160) || "";
+
+  return {
+    title: `${article.title} — Guide BatiPrix`,
+    description: `${excerpt}... Guide pratique BatiPrix pour vos travaux sur la Côte d'Azur.`,
+    openGraph: {
+      title: article.title,
+      description: excerpt,
+      url: `https://batiprix.pro/guides/${slug}`,
+      type: "article",
+    },
+    alternates: {
+      canonical: `https://batiprix.pro/guides/${slug}`,
+    },
+  };
 }
 
 export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {
