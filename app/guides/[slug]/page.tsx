@@ -911,13 +911,13 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         continue;
       }
 
-      // H3 — Subsection (brand cards style)
+      // H3 — Subsection as card header
       if (line.startsWith("### ")) {
         flushList();
         const title = line.replace("### ", "");
         elements.push(
-          <div key={i} className="mt-6 mb-3 flex items-center gap-2">
-            <div className="w-1.5 h-6 bg-orange rounded-full" />
+          <div key={i} className="mt-6 mb-2 bg-white rounded-xl border border-cream-dark/20 px-5 py-4 flex items-center gap-3 shadow-sm">
+            <div className="w-2 h-8 bg-orange rounded-full" />
             <h3 className="text-lg font-bold text-navy">{title}</h3>
           </div>
         );
@@ -929,13 +929,13 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         flushList();
         const rendered = renderInline(line);
         elements.push(
-          <div key={i} className="my-5 bg-orange/5 border-l-4 border-orange rounded-r-xl p-4 flex gap-3">
-            <div className="w-8 h-8 rounded-lg bg-orange/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <svg className="w-4 h-4 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+          <div key={i} className="my-8 bg-gradient-to-r from-orange/10 to-orange/5 border-l-4 border-orange rounded-r-2xl p-6 flex gap-4 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-orange/20 flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
               </svg>
             </div>
-            <div className="text-sm text-navy/80 leading-relaxed" dangerouslySetInnerHTML={{ __html: rendered }} />
+            <div className="text-[15px] text-navy/80 leading-relaxed flex-1" dangerouslySetInnerHTML={{ __html: rendered }} />
           </div>
         );
         continue;
@@ -948,14 +948,14 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         if (match) {
           const desc = match[2] ? renderInline(match[2]) : "";
           listItems.push(
-            <li key={i} className="flex gap-3 items-start bg-cream/40 rounded-lg p-3 border border-cream-dark/10">
-              <div className="w-6 h-6 rounded-md bg-navy/5 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg className="w-3.5 h-3.5 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+            <li key={i} className="flex gap-3 items-start bg-white rounded-xl p-4 border border-cream-dark/15 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-7 h-7 rounded-lg bg-orange/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                 </svg>
               </div>
               <div>
-                <span className="font-semibold text-navy text-sm">{match[1]}</span>
+                <span className="font-bold text-navy text-sm">{match[1]}</span>
                 {desc && <span className="text-navy/60 text-sm" dangerouslySetInnerHTML={{ __html: ` — ${desc}` }} />}
               </div>
             </li>
@@ -985,11 +985,11 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         if (!inList || listType !== "ol") { flushList(); inList = true; listType = "ol"; }
         const content = renderInline(line.replace(/^\d+\.\s/, ""));
         listItems.push(
-          <li key={i} className="flex gap-3 items-start">
-            <span className="w-7 h-7 rounded-lg bg-navy text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5 font-[var(--font-display)]">
+          <li key={i} className="flex gap-4 items-start bg-white rounded-xl p-4 border border-cream-dark/15 shadow-sm">
+            <span className="w-9 h-9 rounded-xl bg-navy text-white text-sm font-bold flex items-center justify-center flex-shrink-0 font-[var(--font-display)]">
               {num}
             </span>
-            <span className="text-sm text-navy/70 leading-relaxed flex-1 pt-1" dangerouslySetInnerHTML={{ __html: content }} />
+            <span className="text-[15px] text-navy/70 leading-relaxed flex-1 pt-1" dangerouslySetInnerHTML={{ __html: content }} />
           </li>
         );
         continue;
@@ -1123,8 +1123,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           </div>
         </div>
 
-        {/* Article content — full width, no card wrapper */}
-        <article className="max-w-3xl mx-auto px-6 pt-10">
+        {/* Article content — wide layout */}
+        <article className="max-w-4xl mx-auto px-6 pt-10">
           <div className="text-navy/80 leading-relaxed">
             {renderContent(article.content)}
           </div>
