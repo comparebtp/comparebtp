@@ -16,6 +16,11 @@ interface ProductRow {
   description: string | null;
   category_name: string | null;
   category_slug: string | null;
+  volume: string | null;
+  color: string | null;
+  weight: string | null;
+  dimensions: string | null;
+  finish: string | null;
 }
 
 interface ListingRow {
@@ -29,7 +34,7 @@ async function getProduct(slug: string) {
   try {
     const products = await query<ProductRow>(
       `SELECT p.id, p.name, p.slug, p.brand, p.ean, p.image_url, p.min_price, p.max_price,
-              p.listing_count, p.description,
+              p.listing_count, p.description, p.volume, p.color, p.weight, p.dimensions, p.finish,
               c.name as category_name, c.slug as category_slug
        FROM products p
        LEFT JOIN categories c ON p.category_id = c.id
@@ -128,6 +133,16 @@ export default async function ProductPage({
               }),
               ...(data.product.ean && { gtin13: data.product.ean }),
               ...(data.product.category_name && { category: data.product.category_name }),
+              ...(data.product.color && { color: data.product.color }),
+              ...(data.product.weight && { weight: { "@type": "QuantitativeValue", value: data.product.weight } }),
+              ...((data.product.volume || data.product.dimensions || data.product.finish || data.product.color) && {
+                additionalProperty: [
+                  ...(data.product.volume ? [{ "@type": "PropertyValue", name: "Contenance", value: data.product.volume }] : []),
+                  ...(data.product.dimensions ? [{ "@type": "PropertyValue", name: "Dimensions", value: data.product.dimensions }] : []),
+                  ...(data.product.finish ? [{ "@type": "PropertyValue", name: "Finition", value: data.product.finish }] : []),
+                  ...(data.product.color ? [{ "@type": "PropertyValue", name: "Couleur", value: data.product.color }] : []),
+                ],
+              }),
               ...(data.product.min_price && {
                 offers: {
                   "@type": "AggregateOffer",

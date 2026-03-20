@@ -26,6 +26,13 @@ interface ProductDetail {
   parent_category_name: string | null;
   parent_category_slug: string | null;
   description: string | null;
+  volume: string | null;
+  color: string | null;
+  weight: string | null;
+  dimensions: string | null;
+  pack_size: string | null;
+  finish: string | null;
+  specifications: string | null;
 }
 
 interface Listing {
@@ -261,7 +268,7 @@ export function ProductClient({ slug }: { slug: string }) {
           </div>
 
           {/* Specs card */}
-          {(product.ean || product.manufacturer_ref || product.brand || product.manufacturer) && (
+          {(product.ean || product.manufacturer_ref || product.brand || product.manufacturer || product.volume || product.color || product.dimensions || product.weight || product.pack_size || product.finish) && (
             <div className="bg-white rounded-xl border border-cream-dark/30 p-6 mb-6">
               <h2 className="text-lg font-bold text-navy mb-4">Caractéristiques</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -269,6 +276,42 @@ export function ProductClient({ slug }: { slug: string }) {
                   <div>
                     <span className="text-xs text-steel block mb-0.5">Marque</span>
                     <span className="text-sm font-medium text-navy">{product.brand}</span>
+                  </div>
+                )}
+                {product.color && (
+                  <div>
+                    <span className="text-xs text-steel block mb-0.5">Couleur</span>
+                    <span className="text-sm font-medium text-navy capitalize">{product.color}</span>
+                  </div>
+                )}
+                {product.volume && (
+                  <div>
+                    <span className="text-xs text-steel block mb-0.5">Contenance</span>
+                    <span className="text-sm font-medium text-navy">{product.volume}</span>
+                  </div>
+                )}
+                {product.dimensions && (
+                  <div>
+                    <span className="text-xs text-steel block mb-0.5">Dimensions</span>
+                    <span className="text-sm font-medium text-navy">{product.dimensions}</span>
+                  </div>
+                )}
+                {product.weight && (
+                  <div>
+                    <span className="text-xs text-steel block mb-0.5">Poids</span>
+                    <span className="text-sm font-medium text-navy">{product.weight}</span>
+                  </div>
+                )}
+                {product.finish && (
+                  <div>
+                    <span className="text-xs text-steel block mb-0.5">Finition</span>
+                    <span className="text-sm font-medium text-navy capitalize">{product.finish}</span>
+                  </div>
+                )}
+                {product.pack_size && (
+                  <div>
+                    <span className="text-xs text-steel block mb-0.5">Conditionnement</span>
+                    <span className="text-sm font-medium text-navy">{product.pack_size}</span>
                   </div>
                 )}
                 {product.manufacturer && product.manufacturer !== product.brand && (
