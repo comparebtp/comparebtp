@@ -11,6 +11,7 @@ interface Listing {
   unit_label?: string | null;
   in_stock: boolean;
   store_product_url?: string | null;
+  store_product_name?: string | null;
   store_name: string;
   store_chain: string;
   store_city: string;
@@ -79,6 +80,11 @@ export function PriceTable({ listings, productId, productName, productSlug }: Pr
                   )}
                 </div>
                 <span className="text-xs text-steel">{listing.store_city}</span>
+                {listing.store_product_name && listing.store_product_name !== productName && (
+                  <p className="text-[11px] text-steel/70 mt-0.5 truncate" title={listing.store_product_name}>
+                    {listing.store_product_name}
+                  </p>
+                )}
               </div>
 
               {/* Price */}

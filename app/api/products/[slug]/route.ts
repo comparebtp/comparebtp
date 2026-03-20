@@ -28,6 +28,7 @@ export async function GET(
   const listings = await query(
     `SELECT sl.id, sl.current_price, sl.old_price, sl.unit_price, sl.unit_label,
             sl.in_stock, sl.store_product_url, sl.image_url, sl.last_scraped_at,
+            sl.store_product_name,
             s.name as store_name, s.chain as store_chain, s.city as store_city,
             s.lat as store_lat, s.lng as store_lng, s.id as store_id
      FROM store_listings sl

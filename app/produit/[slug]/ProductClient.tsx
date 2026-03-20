@@ -43,6 +43,7 @@ interface Listing {
   unit_label: string | null;
   in_stock: boolean;
   store_product_url: string | null;
+  store_product_name: string | null;
   image_url: string | null;
   store_name: string;
   store_chain: string;
