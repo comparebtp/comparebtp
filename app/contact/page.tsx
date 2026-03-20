@@ -32,9 +32,9 @@ export default function Contact() {
           <div className="bg-white rounded-2xl border border-cream-dark/30 p-8">
             <h2 className="text-lg font-bold text-navy mb-4">Adresse</h2>
             <p className="text-navy/80">
-              BatiPrix<br />
-              1 Avenue de la Californie<br />
-              06200 Nice, France
+              PLAMODEALO Vladislav (BatiPrix)<br />
+              4 Avenue Emilia<br />
+              06000 Nice, France
             </p>
           </div>
         </div>

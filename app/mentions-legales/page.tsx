@@ -19,10 +19,12 @@ export default function MentionsLegales() {
               Le site <strong>BatiPrix</strong> (ci-après « le Site ») est édité par :
             </p>
             <ul className="list-none space-y-1">
-              <li><strong>Raison sociale :</strong> BatiPrix</li>
-              <li><strong>Forme juridique :</strong> Entreprise individuelle</li>
-              <li><strong>Adresse :</strong> 1 Avenue de la Californie, 06200 Nice, France</li>
-              <li><strong>Email :</strong> contact@batiprix.pro</li>
+              <li><strong>Raison sociale :</strong> PLAMODEALO Vladislav (BatiPrix)</li>
+              <li><strong>Forme juridique :</strong> Entreprise individuelle (Auto-entrepreneur)</li>
+              <li><strong>SIREN :</strong> 913 872 222</li>
+              <li><strong>RCS :</strong> Nice</li>
+              <li><strong>Adresse :</strong> 4 Avenue Emilia, 06000 Nice, France</li>
+              <li><strong>Email :</strong> batiprix@outlook.fr</li>
               <li><strong>Directeur de la publication :</strong> Vladislav Plamodealo</li>
             </ul>
           </section>

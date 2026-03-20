@@ -17,8 +17,8 @@ export default function Confidentialite() {
           <section>
             <h2 className="text-xl font-bold text-navy">1. Responsable du traitement</h2>
             <p>
-              Le responsable du traitement des données personnelles est BatiPrix,
-              1 Avenue de la Californie, 06200 Nice, France.
+              Le responsable du traitement des données personnelles est PLAMODEALO Vladislav (BatiPrix),
+              4 Avenue Emilia, 06000 Nice, France. SIREN : 913 872 222.
               Contact : <a href="mailto:batiprix@outlook.fr" className="text-orange hover:underline">batiprix@outlook.fr</a>
             </p>
           </section>
