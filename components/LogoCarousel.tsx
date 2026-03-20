@@ -10,13 +10,13 @@ const LOGOS = [
   { name: "ManoMano", file: "/logos/manomano.png" },
   { name: "Bricorama", file: "/logos/bricorama.png" },
   { name: "Point P", file: "/logos/point-p.png" },
-  { name: "Tollens", file: "/logos/tollens.png" },
+  { name: "Tollens", file: "/logos/tollens.svg" },
   { name: "Bricomarché", file: "/logos/bricomarche.png" },
   { name: "Mr Bricolage", file: "/logos/mr-bricolage.png" },
   { name: "Cedeo", file: "/logos/cedeo.png" },
   { name: "Rexel", file: "/logos/rexel.png" },
   { name: "Kiloutou", file: "/logos/kiloutou.png" },
-  { name: "Loxam", file: "/logos/loxam.png" },
+  { name: "Loxam", file: "/logos/loxam.svg" },
   { name: "Weldom", file: "/logos/weldom.png" },
 ];
 
