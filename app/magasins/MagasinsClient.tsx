@@ -404,13 +404,47 @@ const STORES: Store[] = [
 
 const CHAINS = [...new Set(STORES.map((s) => s.chain))].sort();
 
+// ─── SPECIALTY CATEGORIES ─────────────────────────────────
+const SPECIALTY_TYPES: { label: string; keywords: string[] }[] = [
+  { label: "Généraliste", keywords: ["Généraliste BTP", "Généraliste discount", "Bricolage proximité", "Bricolage, jardin", "Bricolage généraliste", "Bricolage"] },
+  { label: "Matériaux / Gros oeuvre", keywords: ["Gros oeuvre, matériaux", "Matériaux construction", "Matériaux pro", "Matériaux construction pro", "Bois, matériaux construction", "Matériaux, carrelage", "Matériaux, carrelage, SDB", "Matériaux, carrelage, SDB, peinture", "Bois, couverture", "Matériaux écologiques, isolants bio", "Matériaux lourds, couverture", "Gros oeuvre, isolation, carrelage"] },
+  { label: "Plomberie / Sanitaire", keywords: ["Plomberie, chauffage", "Plomberie, sanitaire", "Plomberie, quincaillerie", "Plomberie, matériaux", "Tubes, assainissement", "Tubes plastiques, canalisations", "Piscine, pompage, paysage"] },
+  { label: "Électricité", keywords: ["Électricité pro", "Électricité"] },
+  { label: "Peinture", keywords: ["Peinture pro", "Peinture"] },
+  { label: "Outillage / Quincaillerie", keywords: ["Outillage pro, visserie", "Quincaillerie pro", "Quincaillerie, serrurerie", "Quincaillerie pro, outillage, EPI", "Quincaillerie bâtiment, serrurerie", "Fournitures industrielles", "Outillage, serrurerie, peinture"] },
+  { label: "Menuiserie / Bois", keywords: ["Menuiserie, cuisine, SDB", "Bois, panneaux, menuiserie", "Bois, portes, fenêtres, parquet"] },
+  { label: "Carrelage / SDB", keywords: ["Salle de bain, carrelage", "Carrelage, revêtement"] },
+  { label: "Toiture / Couverture", keywords: ["Toiture, couverture, zinguerie"] },
+  { label: "Location matériel", keywords: ["Location matériel", "Location nacelles"] },
+];
+
+function getSpecialtyType(specialty: string): string {
+  for (const type of SPECIALTY_TYPES) {
+    if (type.keywords.includes(specialty)) return type.label;
+  }
+  return "Autre";
+}
+
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 // ─── PAGE ────────────────────────────────────────────────
 export function MagasinsClient() {
   const [search, setSearch] = useState("");
   const [selectedChains, setSelectedChains] = useState<string[]>([]);
   const [selectedDept, setSelectedDept] = useState("all");
+  const [selectedType, setSelectedType] = useState("all");
   const [pricesOnly, setPricesOnly] = useState(false);
+  const [sortBy, setSortBy] = useState<"name" | "distance">("name");
+  const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null);
+  const [geoLoading, setGeoLoading] = useState(false);
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
   const [mounted, setMounted] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -418,18 +452,52 @@ export function MagasinsClient() {
     setMounted(true);
   }, []);
 
+  const requestLocation = () => {
+    if (userPos) {
+      setSortBy("distance");
+      return;
+    }
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setSortBy("distance");
+        setGeoLoading(false);
+      },
+      () => {
+        // Default to Nice centre if denied
+        setUserPos({ lat: 43.7102, lng: 7.2620 });
+        setSortBy("distance");
+        setGeoLoading(false);
+      }
+    );
+  };
+
   const filtered = useMemo(() => {
-    return STORES.filter((s) => {
+    let result = STORES.filter((s) => {
       if (search) {
         const q = search.toLowerCase();
         if (![s.name, s.chain, s.city, s.specialty].some((f) => f.toLowerCase().includes(q))) return false;
       }
       if (selectedChains.length && !selectedChains.includes(s.chain)) return false;
       if (selectedDept !== "all" && s.dept !== selectedDept) return false;
+      if (selectedType !== "all" && getSpecialtyType(s.specialty) !== selectedType) return false;
       if (pricesOnly && !s.hasPrices) return false;
       return true;
     });
-  }, [search, selectedChains, selectedDept, pricesOnly]);
+
+    if (sortBy === "distance" && userPos) {
+      result = [...result].sort((a, b) => {
+        const dA = haversineKm(userPos.lat, userPos.lng, a.lat, a.lng);
+        const dB = haversineKm(userPos.lat, userPos.lng, b.lat, b.lng);
+        return dA - dB;
+      });
+    } else {
+      result = [...result].sort((a, b) => a.name.localeCompare(b.name, "fr"));
+    }
+
+    return result;
+  }, [search, selectedChains, selectedDept, selectedType, pricesOnly, sortBy, userPos]);
 
   const toggleChain = (chain: string) =>
     setSelectedChains((p) => (p.includes(chain) ? p.filter((c) => c !== chain) : [...p, chain]));
@@ -439,6 +507,13 @@ export function MagasinsClient() {
     STORES.forEach((s) => (c[s.chain] = (c[s.chain] || 0) + 1));
     return c;
   }, []);
+
+  const activeFilterCount = (selectedChains.length > 0 ? 1 : 0) + (selectedDept !== "all" ? 1 : 0) + (selectedType !== "all" ? 1 : 0) + (pricesOnly ? 1 : 0);
+
+  const getDistance = (store: Store) => {
+    if (!userPos) return null;
+    return haversineKm(userPos.lat, userPos.lng, store.lat, store.lng);
+  };
 
   return (
     <div className="h-screen flex flex-col bg-white">
@@ -455,105 +530,210 @@ export function MagasinsClient() {
           </span>
         </a>
         <div className="h-6 w-px bg-white/10" />
-        <span className="text-white/80 text-sm font-medium">Carte des magasins</span>
+        <span className="text-white/80 text-sm font-medium hidden sm:inline">Carte des magasins BTP</span>
         <div className="flex-1" />
-        <span className="text-steel text-sm">{filtered.length} magasins</span>
+        <span className="text-orange font-bold text-sm">{filtered.length}</span>
+        <span className="text-steel text-sm">magasin{filtered.length > 1 ? "s" : ""}</span>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="w-[380px] flex-shrink-0 border-r border-gray-200 flex flex-col bg-white">
-          {/* Search */}
-          <div className="p-3 border-b border-gray-100">
+        <div className="w-[400px] flex-shrink-0 border-r border-gray-200 flex flex-col bg-white">
+          {/* Search + sort */}
+          <div className="p-3 border-b border-gray-100 space-y-2">
             <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
-              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
               </svg>
               <input
                 type="text"
-                placeholder="Rechercher..."
+                placeholder="Rechercher un magasin, une ville, une enseigne..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder:text-gray-400"
               />
+              {search && (
+                <button onClick={() => setSearch("")} className="text-gray-400 hover:text-gray-600 text-xs">
+                  &times;
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={requestLocation}
+                disabled={geoLoading}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  sortBy === "distance"
+                    ? "bg-orange text-white"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                </svg>
+                {geoLoading ? "Localisation..." : sortBy === "distance" ? "Par distance" : "Trier par distance"}
+              </button>
+              {sortBy === "distance" && (
+                <button
+                  onClick={() => setSortBy("name")}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"
+                >
+                  A-Z
+                </button>
+              )}
+              <div className="flex-1" />
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  showFilters || activeFilterCount > 0
+                    ? "bg-navy text-white"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                </svg>
+                Filtres
+                {activeFilterCount > 0 && (
+                  <span className="w-4 h-4 rounded-full bg-orange text-white text-[10px] flex items-center justify-center">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="p-3 border-b border-gray-100 space-y-2">
-            <div className="flex flex-wrap gap-1.5">
-              {CHAINS.map((chain) => {
-                const store = STORES.find((s) => s.chain === chain)!;
-                const active = selectedChains.includes(chain);
-                return (
-                  <button
-                    key={chain}
-                    onClick={() => toggleChain(chain)}
-                    className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium border transition-all ${
-                      active
-                        ? "text-white border-transparent"
-                        : "text-gray-600 border-gray-200 hover:border-gray-400 bg-white"
-                    }`}
-                    style={active ? { backgroundColor: store.color, borderColor: store.color } : {}}
-                  >
-                    {!active && (
-                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: store.color }} />
-                    )}
-                    {chain}
-                    <span className="opacity-60">{chainCounts[chain]}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="flex items-center gap-3 text-xs">
-              <select
-                value={selectedDept}
-                onChange={(e) => setSelectedDept(e.target.value)}
-                className="bg-gray-50 border border-gray-200 rounded px-2 py-1 text-gray-700 outline-none"
-              >
-                <option value="all">06 + 83</option>
-                <option value="06">06 Alpes-Maritimes</option>
-                <option value="83">83 Var</option>
-              </select>
-              <label className="flex items-center gap-1.5 cursor-pointer text-gray-600">
-                <input
-                  type="checkbox"
-                  checked={pricesOnly}
-                  onChange={(e) => setPricesOnly(e.target.checked)}
-                  className="rounded border-gray-300"
-                />
-                Prix en ligne
+          {/* Expandable filters */}
+          {showFilters && (
+            <div className="p-3 border-b border-gray-100 space-y-3 bg-gray-50/50">
+              {/* Type filter */}
+              <div>
+                <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Type de magasin</label>
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:border-orange focus:ring-1 focus:ring-orange/30"
+                >
+                  <option value="all">Tous les types</option>
+                  {SPECIALTY_TYPES.map((t) => (
+                    <option key={t.label} value={t.label}>{t.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Department filter */}
+              <div>
+                <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Département</label>
+                <div className="flex gap-2">
+                  {[
+                    { value: "all", label: "Tous" },
+                    { value: "06", label: "06 Alpes-Maritimes" },
+                    { value: "83", label: "83 Var" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setSelectedDept(opt.value)}
+                      className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        selectedDept === opt.value
+                          ? "bg-navy text-white"
+                          : "bg-white text-gray-600 border border-gray-200 hover:border-gray-400"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Prices only */}
+              <label className="flex items-center gap-2 cursor-pointer">
+                <div className={`w-9 h-5 rounded-full transition-colors relative ${pricesOnly ? "bg-orange" : "bg-gray-300"}`}>
+                  <div className={`w-4 h-4 rounded-full bg-white shadow absolute top-0.5 transition-all ${pricesOnly ? "left-[18px]" : "left-0.5"}`} />
+                </div>
+                <span className="text-sm text-gray-700">Uniquement avec prix en ligne</span>
               </label>
+
+              {/* Chain filter */}
+              <div>
+                <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">
+                  Enseignes {selectedChains.length > 0 && <button onClick={() => setSelectedChains([])} className="text-orange ml-1 normal-case">(tout effacer)</button>}
+                </label>
+                <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
+                  {CHAINS.map((chain) => {
+                    const store = STORES.find((s) => s.chain === chain)!;
+                    const active = selectedChains.includes(chain);
+                    return (
+                      <button
+                        key={chain}
+                        onClick={() => toggleChain(chain)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium border transition-all ${
+                          active
+                            ? "text-white border-transparent"
+                            : "text-gray-600 border-gray-200 hover:border-gray-400 bg-white"
+                        }`}
+                        style={active ? { backgroundColor: store.color, borderColor: store.color } : {}}
+                      >
+                        {!active && (
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: store.color }} />
+                        )}
+                        {chain}
+                        <span className="opacity-60">{chainCounts[chain]}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Store list */}
           <div ref={listRef} className="flex-1 overflow-y-auto">
-            {filtered.map((store) => (
-              <div
-                key={store.id}
-                onClick={() => setSelectedStore(store)}
-                className={`px-4 py-3 border-b border-gray-50 cursor-pointer transition-colors hover:bg-gray-50 ${
-                  selectedStore?.id === store.id ? "bg-orange/5 border-l-[3px] border-l-orange" : ""
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: store.color }} />
-                    <span className="font-semibold text-sm text-gray-900">{store.name}</span>
-                  </div>
-                  {store.hasPrices && (
-                    <span className="text-[10px] bg-green-50 text-green-700 px-1.5 py-0.5 rounded font-medium">
-                      Prix
-                    </span>
-                  )}
-                </div>
-                <div className="ml-[18px] mt-0.5">
-                  <p className="text-xs text-gray-500">{store.address}, {store.city}</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">{store.specialty}</p>
-                </div>
+            {filtered.length === 0 && (
+              <div className="p-8 text-center text-gray-400">
+                <svg className="w-12 h-12 mx-auto mb-3 text-gray-200" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                </svg>
+                <p className="text-sm font-medium text-gray-500">Aucun magasin</p>
+                <p className="text-xs mt-1">Modifiez vos filtres</p>
               </div>
-            ))}
+            )}
+            {filtered.map((store) => {
+              const dist = getDistance(store);
+              return (
+                <div
+                  key={store.id}
+                  onClick={() => setSelectedStore(store)}
+                  className={`px-4 py-3 border-b border-gray-50 cursor-pointer transition-colors hover:bg-gray-50 ${
+                    selectedStore?.id === store.id ? "bg-orange/5 border-l-[3px] border-l-orange" : ""
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: store.color }} />
+                      <span className="font-semibold text-sm text-gray-900 truncate">{store.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
+                      {dist !== null && (
+                        <span className="text-[10px] text-gray-400 font-mono">
+                          {dist < 1 ? `${Math.round(dist * 1000)}m` : `${dist.toFixed(1)} km`}
+                        </span>
+                      )}
+                      {store.hasPrices && (
+                        <span className="text-[10px] bg-green-50 text-green-700 px-1.5 py-0.5 rounded font-medium">
+                          Prix
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="ml-[18px] mt-0.5">
+                    <p className="text-xs text-gray-500 truncate">{store.address}, {store.city}</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">{store.specialty}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -572,8 +752,8 @@ export function MagasinsClient() {
                 zoomControl={true}
               >
                 <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  url="https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"
                 />
                 {filtered.map((store) => (
                   <StoreMarker
@@ -581,6 +761,7 @@ export function MagasinsClient() {
                     store={store}
                     isSelected={selectedStore?.id === store.id}
                     onClick={() => setSelectedStore(store)}
+                    distance={getDistance(store)}
                   />
                 ))}
               </MapContainer>
@@ -589,14 +770,14 @@ export function MagasinsClient() {
 
           {/* Selected store popup overlay */}
           {selectedStore && (
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] bg-white rounded-xl shadow-2xl border border-gray-200 p-4 w-[360px]">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] bg-white rounded-xl shadow-2xl border border-gray-200 p-5 w-[380px]">
               <button
                 onClick={() => setSelectedStore(null)}
-                className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-lg leading-none"
+                className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-700 hover:bg-gray-200 text-sm transition-colors"
               >
                 &times;
               </button>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-2">
                 <span className="w-3 h-3 rounded-full" style={{ backgroundColor: selectedStore.color }} />
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                   {selectedStore.chain}
@@ -607,17 +788,41 @@ export function MagasinsClient() {
                   </span>
                 )}
               </div>
-              <h3 className="font-bold text-gray-900">{selectedStore.name}</h3>
-              <p className="text-sm text-gray-500 mt-0.5">{selectedStore.address}, {selectedStore.city} ({selectedStore.dept})</p>
-              <p className="text-xs text-gray-400 mt-0.5">{selectedStore.specialty}</p>
-              <a
-                href={selectedStore.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-3 text-sm text-orange font-medium hover:underline"
-              >
-                Voir le site &rarr;
-              </a>
+              <h3 className="font-bold text-gray-900 text-lg">{selectedStore.name}</h3>
+              <p className="text-sm text-gray-500 mt-1">{selectedStore.address}, {selectedStore.city} ({selectedStore.dept})</p>
+              <div className="flex items-center gap-3 mt-2">
+                <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded">{selectedStore.specialty}</span>
+                {getDistance(selectedStore) !== null && (
+                  <span className="text-xs text-orange font-medium">
+                    {getDistance(selectedStore)! < 1
+                      ? `${Math.round(getDistance(selectedStore)! * 1000)}m`
+                      : `${getDistance(selectedStore)!.toFixed(1)} km`}
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2 mt-4">
+                {selectedStore.website && (
+                  <a
+                    href={selectedStore.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 text-center bg-orange hover:bg-orange/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Voir le site
+                  </a>
+                )}
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${selectedStore.lat},${selectedStore.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />
+                  </svg>
+                  Itinéraire
+                </a>
+              </div>
             </div>
           )}
         </div>
@@ -635,6 +840,7 @@ function StoreMarker({
   store: Store;
   isSelected: boolean;
   onClick: () => void;
+  distance: number | null;
 }) {
   const [L, setL] = useState<typeof import("leaflet") | null>(null);
 
