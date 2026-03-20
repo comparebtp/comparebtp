@@ -68,11 +68,12 @@ export default async function RecherchePage({
               {initialData.products.map((p: Record<string, unknown>) => (
                 <li key={String(p.id)}>
                   <a href={`/produit/${p.slug}`}>
+                    {p.image_url ? <img src={String(p.image_url)} alt={String(p.name)} width={120} height={120} /> : null}
                     {String(p.name)} — {p.min_price ? `${Number(p.min_price).toFixed(2)}€` : ""}
                     {p.max_price && Number(p.max_price) !== Number(p.min_price) ? ` à ${Number(p.max_price).toFixed(2)}€` : ""}
-                    {p.brand ? ` — ${p.brand}` : ""}
-                    {p.category_name ? ` — ${p.category_name}` : ""}
-                    {p.listing_count ? ` — ${p.listing_count} magasins` : ""}
+                    {p.brand ? ` — ${String(p.brand)}` : ""}
+                    {p.category_name ? ` — ${String(p.category_name)}` : ""}
+                    {p.listing_count ? ` — ${String(p.listing_count)} magasins` : ""}
                   </a>
                 </li>
               ))}

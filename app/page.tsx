@@ -292,7 +292,7 @@ export default async function Home() {
               ))}
             </div>
             <p className="text-center text-xs text-steel mt-3">
-              Prix mis à jour le {new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+              Prix mis à jour quotidiennement &bull; Dernière vérification : aujourd&apos;hui
             </p>
           </div>
         </div>
