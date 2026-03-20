@@ -1,8 +1,24 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+const ARTICLE_IMAGES: Record<string, { image: string; readTime: string }> = {
+  "comment-choisir-perceuse": { image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=1200&h=600&fit=crop", readTime: "8 min" },
+  "prix-materiaux-construction-cote-azur": { image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&h=600&fit=crop", readTime: "12 min" },
+  "guide-peinture-interieure": { image: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=1200&h=600&fit=crop", readTime: "10 min" },
+  "meilleurs-magasins-btp-nice": { image: "https://images.unsplash.com/photo-1513467535987-fd81bc7d62f8?w=1200&h=600&fit=crop", readTime: "7 min" },
+  "acheter-materiaux-italie-frontiere": { image: "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=1200&h=600&fit=crop", readTime: "8 min" },
+  "economiser-travaux-renovation": { image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&h=600&fit=crop", readTime: "5 min" },
+  "renovation-salle-de-bain-budget": { image: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&h=600&fit=crop", readTime: "15 min" },
+  "isoler-maison-cote-azur": { image: "https://images.unsplash.com/photo-1607400201889-565b1ee75f8e?w=1200&h=600&fit=crop", readTime: "11 min" },
+  "comparatif-visserie-fixation": { image: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=1200&h=600&fit=crop", readTime: "6 min" },
+  "outillage-electroportatif-pro": { image: "https://images.unsplash.com/photo-1530124566582-a45a7c0be13a?w=1200&h=600&fit=crop", readTime: "9 min" },
+  "carrelage-sol-mur-guide": { image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=1200&h=600&fit=crop", readTime: "10 min" },
+  "electricite-maison-normes-prix": { image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1200&h=600&fit=crop", readTime: "13 min" },
+};
 
 const ARTICLES: Record<string, { title: string; category: string; date: string; content: string }> = {
   "comment-choisir-perceuse": {
@@ -770,6 +786,15 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
     return elements;
   };
 
+  const meta = ARTICLE_IMAGES[slug];
+  const heroImage = meta?.image;
+  const readTime = meta?.readTime || "5 min";
+
+  // Get related guides (same category, exclude current)
+  const related = Object.entries(ARTICLES)
+    .filter(([s, a]) => s !== slug && a.category === article.category)
+    .slice(0, 2);
+
   return (
     <div className="min-h-screen bg-cream">
       {/* JSON-LD Article schema */}
@@ -781,6 +806,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             "@type": "Article",
             "headline": article.title,
             "datePublished": "2026-03-15",
+            "image": heroImage,
             "author": { "@type": "Organization", "name": "BatiPrix" },
             "publisher": { "@type": "Organization", "name": "BatiPrix", "url": "https://batiprix.pro" },
             "mainEntityOfPage": `https://batiprix.pro/guides/${slug}`
@@ -788,40 +814,192 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         }}
       />
       <Navbar />
-      <main className="pt-24 pb-16 max-w-3xl mx-auto px-6">
-        <Link href="/guides" className="text-sm text-orange hover:underline mb-4 inline-block">
-          &larr; Retour aux guides
-        </Link>
 
-        <div className="mb-6">
-          <span className="font-[var(--font-display)] text-xs tracking-wider text-orange uppercase bg-orange/5 px-3 py-1 rounded">
+      {/* Hero with image */}
+      {heroImage && (
+        <div className="relative h-[300px] md:h-[420px] overflow-hidden">
+          <Image
+            src={heroImage}
+            alt={article.title}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+            unoptimized
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-navy/20" />
+          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12 max-w-4xl mx-auto">
+            <Link
+              href="/guides"
+              className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white mb-4 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+              </svg>
+              Guides
+            </Link>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-orange text-white">
+                {article.category}
+              </span>
+              <span className="flex items-center gap-1 text-white/60 text-xs">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                {readTime} de lecture
+              </span>
+              <span className="text-white/40 text-xs">{article.date}</span>
+            </div>
+            <h1 className="text-2xl md:text-4xl font-bold text-white leading-tight drop-shadow-lg">
+              {article.title}
+            </h1>
+          </div>
+        </div>
+      )}
+
+      {/* No hero fallback */}
+      {!heroImage && (
+        <div className="pt-24 pb-8 max-w-4xl mx-auto px-6">
+          <Link href="/guides" className="text-sm text-orange hover:underline mb-4 inline-block">
+            &larr; Retour aux guides
+          </Link>
+          <span className="font-[var(--font-display)] text-xs tracking-wider text-orange uppercase bg-orange/5 px-3 py-1 rounded ml-4">
             {article.category}
           </span>
+          <h1 className="text-3xl md:text-4xl font-bold text-navy mt-4 mb-2 leading-tight">
+            {article.title}
+          </h1>
+          <p className="text-steel text-sm">{readTime} de lecture &middot; {article.date}</p>
+        </div>
+      )}
+
+      <main className="max-w-4xl mx-auto px-6 py-8 md:py-12">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Article content */}
+          <article className="flex-1 min-w-0">
+            <div className="bg-white rounded-2xl border border-cream-dark/20 p-6 md:p-10 text-navy/80 leading-relaxed prose-custom">
+              {renderContent(article.content)}
+            </div>
+
+            {/* Author box */}
+            <div className="mt-8 bg-white rounded-2xl border border-cream-dark/20 p-6 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold text-navy text-sm">Rédigé par l&apos;équipe BatiPrix</p>
+                <p className="text-xs text-steel">Comparateur de prix BTP sur la Côte d&apos;Azur &middot; Mis à jour le {article.date}</p>
+              </div>
+            </div>
+          </article>
+
+          {/* Sidebar */}
+          <aside className="lg:w-72 flex-shrink-0 space-y-6">
+            {/* Quick nav */}
+            <div className="bg-white rounded-2xl border border-cream-dark/20 p-5 sticky top-24">
+              <h3 className="font-bold text-navy text-sm mb-3 flex items-center gap-2">
+                <svg className="w-4 h-4 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                </svg>
+                Dans cet article
+              </h3>
+              <nav className="space-y-1.5">
+                {article.content.trim().split("\n")
+                  .filter(l => l.startsWith("## "))
+                  .map((l, i) => (
+                    <div key={i} className="text-xs text-steel hover:text-orange transition-colors cursor-default py-1 border-l-2 border-cream-dark/30 pl-3">
+                      {l.replace("## ", "")}
+                    </div>
+                  ))}
+              </nav>
+            </div>
+
+            {/* CTA */}
+            <div className="bg-gradient-to-br from-orange to-orange/80 rounded-2xl p-5 text-white">
+              <h3 className="font-bold text-sm mb-2">Comparez les prix</h3>
+              <p className="text-xs text-white/80 mb-3 leading-relaxed">
+                Trouvez le meilleur prix parmi 3 000+ produits BTP.
+              </p>
+              <Link
+                href="/recherche"
+                className="block text-center bg-white text-orange px-4 py-2 rounded-lg text-sm font-bold hover:bg-white/90 transition-colors"
+              >
+                Rechercher
+              </Link>
+            </div>
+
+            {/* Related guides */}
+            {related.length > 0 && (
+              <div className="bg-white rounded-2xl border border-cream-dark/20 p-5">
+                <h3 className="font-bold text-navy text-sm mb-3">Guides similaires</h3>
+                <div className="space-y-3">
+                  {related.map(([relSlug, relArticle]) => {
+                    const relMeta = ARTICLE_IMAGES[relSlug];
+                    return (
+                      <Link
+                        key={relSlug}
+                        href={`/guides/${relSlug}`}
+                        className="flex gap-3 group"
+                      >
+                        {relMeta?.image && (
+                          <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 relative">
+                            <Image
+                              src={relMeta.image.replace('w=1200&h=600', 'w=200&h=200')}
+                              alt={relArticle.title}
+                              fill
+                              className="object-cover group-hover:scale-110 transition-transform duration-300"
+                              sizes="64px"
+                              unoptimized
+                            />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-navy group-hover:text-orange transition-colors line-clamp-2 leading-snug">
+                            {relArticle.title}
+                          </p>
+                          <p className="text-[10px] text-steel mt-1">{relMeta?.readTime || "5 min"}</p>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </aside>
         </div>
 
-        <h1 className="text-3xl md:text-4xl font-bold text-navy mb-4 leading-tight">
-          {article.title}
-        </h1>
-
-        <p className="text-steel text-sm mb-8">{article.date}</p>
-
-        <div className="bg-white rounded-2xl border border-cream-dark/20 p-8 md:p-10 text-navy/80 leading-relaxed">
-          {renderContent(article.content)}
-        </div>
-
-        <div className="mt-12 bg-orange/5 border border-orange/20 rounded-2xl p-8 text-center">
-          <h2 className="text-xl font-bold text-navy mb-2">
-            Comparez les prix maintenant
-          </h2>
-          <p className="text-steel mb-4">
-            Trouvez le meilleur prix pour vos matériaux sur la Côte d&apos;Azur.
-          </p>
-          <Link
-            href="/recherche"
-            className="inline-block bg-orange hover:bg-orange-hot text-white px-6 py-3 rounded-xl font-semibold transition-colors"
-          >
-            Rechercher un produit
-          </Link>
+        {/* Bottom CTA */}
+        <div className="mt-12 relative bg-navy rounded-3xl overflow-hidden p-8 md:p-12">
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute inset-0" style={{
+              backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M20 20h20v20H20z'/%3E%3C/g%3E%3C/svg%3E\")",
+            }} />
+          </div>
+          <div className="relative text-center">
+            <h2 className="text-2xl font-bold text-white mb-3">
+              Comparez les prix maintenant
+            </h2>
+            <p className="text-steel mb-6 max-w-md mx-auto">
+              Trouvez le meilleur prix pour vos matériaux sur la Côte d&apos;Azur
+              parmi 3 000+ produits et 244 magasins.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                href="/recherche"
+                className="bg-orange hover:bg-orange/90 text-white px-8 py-3 rounded-xl font-bold transition-all hover:scale-105 hover:shadow-lg hover:shadow-orange/30"
+              >
+                Rechercher un produit
+              </Link>
+              <Link
+                href="/guides"
+                className="bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-xl font-bold transition-all border border-white/10"
+              >
+                Voir tous les guides
+              </Link>
+            </div>
+          </div>
         </div>
       </main>
       <Footer />
