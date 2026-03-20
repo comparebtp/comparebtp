@@ -11,6 +11,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SearchBar } from "@/components/SearchBar";
 import { query } from "@/lib/db";
+import { LogoCarousel } from "@/components/LogoCarousel";
 
 // ─── ICON COMPONENTS (inline SVGs for product images) ────
 function DrillIcon() {
@@ -234,18 +235,7 @@ export default async function Home() {
               Tous les prix, un seul endroit
             </h2>
           </div>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-14">
-            {STORES.map((store) => (
-              <div key={store.name} className="store-logo group cursor-pointer">
-                <div className="bg-white rounded-xl border-2 border-cream-dark/30 hover:border-orange/30 px-8 py-5 transition-all hover:shadow-lg hover:shadow-orange/5">
-                  <div className="font-[var(--font-display)] text-lg font-bold text-navy/70 group-hover:text-navy transition-colors">
-                    {store.short}
-                  </div>
-                  <div className="text-xs text-steel mt-0.5">{store.name}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <LogoCarousel />
         </div>
       </section>
 
