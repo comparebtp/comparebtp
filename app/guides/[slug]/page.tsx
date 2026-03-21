@@ -12,7 +12,7 @@ const ARTICLE_IMAGES: Record<string, { image: string; readTime: string; sectionI
     sectionImages: [
       "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=900&h=400&fit=crop",
       "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=900&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1530124566582-a45a7c0be13a?w=900&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?w=900&h=400&fit=crop",
     ],
   },
   "prix-materiaux-construction-cote-azur": {
@@ -882,7 +882,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         // Insert section image before even sections (between sections)
         if (sectionIndex > 1 && imageIndex < sectionImages.length) {
           elements.push(
-            <div key={`img-${i}`} className="my-10 -mx-6 md:-mx-10 lg:-mx-20 relative h-[220px] md:h-[300px] rounded-2xl overflow-hidden">
+            <div key={`img-${i}`} className="my-10 -mx-6 md:-mx-16 relative h-[250px] md:h-[340px] rounded-2xl overflow-hidden shadow-lg">
               <Image
                 src={sectionImages[imageIndex]}
                 alt=""
@@ -891,7 +891,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
                 sizes="100vw"
                 unoptimized
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-navy/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy/40 via-transparent to-navy/10" />
             </div>
           );
           imageIndex++;
@@ -1123,15 +1123,15 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           </div>
         </div>
 
-        {/* Article content — wide layout */}
-        <article className="max-w-4xl mx-auto px-6 pt-10">
-          <div className="text-navy/80 leading-relaxed">
+        {/* Article content — full width white background */}
+        <article className="bg-white border-t border-cream-dark/20">
+          <div className="max-w-4xl mx-auto px-6 md:px-16 py-12 text-navy/80 leading-relaxed">
             {renderContent(article.content)}
           </div>
         </article>
 
         {/* Author + share */}
-        <div className="max-w-3xl mx-auto px-6 mt-12">
+        <div className="max-w-4xl mx-auto px-6 md:px-16 mt-12">
           <div className="border-t border-cream-dark/30 pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
