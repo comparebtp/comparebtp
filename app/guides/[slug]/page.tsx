@@ -788,12 +788,10 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
     notFound();
   }
 
-  // Section counter for alternating styles
+  // Section counter
   let sectionIndex = 0;
-  const sectionImages = ARTICLE_IMAGES[slug]?.sectionImages || [];
-  let imageIndex = 0;
 
-  // Pro magazine-style rendering
+  // Render markdown content into sections
   const renderContent = (content: string) => {
     const lines = content.trim().split("\n");
     const elements: React.ReactNode[] = [];
@@ -805,19 +803,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
 
     const flushList = () => {
       if (listItems.length > 0) {
-        if (listType === "ol") {
-          elements.push(
-            <ol key={`list-${elements.length}`} className="space-y-2 my-4 pl-1">
-              {listItems}
-            </ol>
-          );
-        } else {
-          elements.push(
-            <ul key={`list-${elements.length}`} className="space-y-2 my-4 pl-1">
-              {listItems}
-            </ul>
-          );
-        }
+        const Tag = listType === "ol" ? "ol" : "ul";
+        elements.push(<Tag key={`list-${elements.length}`} className="space-y-3 my-6">{listItems}</Tag>);
         listItems = [];
         inList = false;
       }
@@ -826,21 +813,21 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
     const flushTable = () => {
       if (tableRows.length > 0) {
         elements.push(
-          <div key={`table-${elements.length}`} className="overflow-x-auto my-6 rounded-xl border border-cream-dark/20">
+          <div key={`table-${elements.length}`} className="overflow-x-auto my-8 rounded-2xl border border-slate-200 shadow-sm">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-navy">
                   {tableRows[0].map((cell, ci) => (
-                    <th key={ci} className="text-left py-3 px-4 font-semibold text-white text-xs uppercase tracking-wide">{cell.trim()}</th>
+                    <th key={ci} className={`py-4 px-5 font-bold text-white text-sm ${ci === 0 ? "text-left" : "text-center"}`}>{cell.trim()}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {tableRows.slice(2).map((row, ri) => (
-                  <tr key={ri} className={`border-b border-cream-dark/15 ${ri % 2 === 0 ? "bg-cream/30" : "bg-white"}`}>
+                  <tr key={ri} className={ri % 2 === 0 ? "bg-slate-50" : "bg-white"}>
                     {row.map((cell, ci) => {
                       const rendered = cell.trim().replace(/\*\*(.+?)\*\*/g, "<strong class='text-navy'>$1</strong>");
-                      return <td key={ci} className="py-3 px-4 text-navy/70" dangerouslySetInnerHTML={{ __html: rendered }} />;
+                      return <td key={ci} className={`py-4 px-5 ${ci === 0 ? "text-left font-semibold text-navy" : "text-center text-slate-600"} border-b border-slate-100`} dangerouslySetInnerHTML={{ __html: rendered }} />;
                     })}
                   </tr>
                 ))}
@@ -855,108 +842,74 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
     const renderInline = (text: string) => {
       return text
         .replace(/\*\*(.+?)\*\*/g, "<strong class='text-navy font-semibold'>$1</strong>")
-        .replace(/\~(\d+[\-–]\d+€?\s*€?)\~/g, "<span class='text-orange font-bold'>$1</span>");
+        .replace(/(\~?\d+[\s]*(?:[-–à]\s*\d+)?\s*€)/g, "<span class='text-orange font-semibold'>$1</span>");
     };
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      // Table
-      if (line.startsWith("|")) {
-        flushList();
-        inTable = true;
-        tableRows.push(line.split("|").filter(Boolean));
-        continue;
-      } else if (inTable) {
-        inTable = false;
-        flushTable();
-      }
+      if (line.startsWith("|")) { flushList(); inTable = true; tableRows.push(line.split("|").filter(Boolean)); continue; }
+      if (inTable && !line.startsWith("|")) { inTable = false; flushTable(); }
 
-      // H2 — Major section with icon bar, anchor, and optional section image
+      // H2 — section break: close current section, insert gradient header, open new section
       if (line.startsWith("## ")) {
         flushList();
         const title = line.replace("## ", "");
         const id = title.toLowerCase().replace(/[^\w]+/g, "-").replace(/-+$/, "");
         sectionIndex++;
-
-        // Insert section image before even sections (between sections)
-        if (sectionIndex > 1 && imageIndex < sectionImages.length) {
-          elements.push(
-            <div key={`img-${i}`} className="my-10 -mx-6 md:-mx-16 relative h-[250px] md:h-[340px] rounded-2xl overflow-hidden shadow-lg">
-              <Image
-                src={sectionImages[imageIndex]}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="100vw"
-                unoptimized
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy/40 via-transparent to-navy/10" />
-            </div>
-          );
-          imageIndex++;
-        }
-
+        // Close previous section content + insert gradient header
         elements.push(
-          <div key={i} id={id} className="scroll-mt-32 mt-10 mb-5 first:mt-0">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-orange/10 flex items-center justify-center flex-shrink-0">
-                <span className="text-orange font-bold text-sm">{String(sectionIndex).padStart(2, "0")}</span>
+          <div key={`sh-${i}`}>
+            {/* Gradient section header */}
+            <div id={id} className="scroll-mt-16 -mx-6 md:-mx-12 lg:-mx-20 relative py-16 px-8 md:px-20 overflow-hidden" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)" }}>
+              <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20h40M20 0v40' stroke='%23fff' stroke-width='.5' fill='none'/%3E%3C/svg%3E\")" }} />
+              <div className="absolute top-[-40px] right-[-40px] w-[200px] h-[200px] rounded-full opacity-[0.08] blur-[50px]" style={{ background: sectionIndex % 2 === 0 ? "#22c55e" : "#F97316" }} />
+              <div className="absolute bottom-[-30px] left-[20%] w-[140px] h-[140px] rounded-full opacity-[0.06] blur-[40px]" style={{ background: sectionIndex % 2 === 0 ? "#F97316" : "#3b82f6" }} />
+              <div className="relative max-w-[1100px] mx-auto">
+                <div className="text-xs text-orange font-bold uppercase tracking-[3px]">Section {String(sectionIndex).padStart(2, "0")}</div>
+                <h2 className="text-2xl md:text-4xl font-black text-white mt-3 leading-tight tracking-tight">{title}</h2>
               </div>
-              <h2 className="text-xl md:text-2xl font-bold text-navy leading-snug">{title}</h2>
             </div>
-            <div className="h-px bg-gradient-to-r from-orange/30 via-cream-dark/20 to-transparent mt-3" />
           </div>
         );
         continue;
       }
 
-      // H3 — Subsection as card header
+      // H3
       if (line.startsWith("### ")) {
         flushList();
-        const title = line.replace("### ", "");
         elements.push(
-          <div key={i} className="mt-6 mb-2 bg-white rounded-xl border border-cream-dark/20 px-5 py-4 flex items-center gap-3 shadow-sm">
-            <div className="w-2 h-8 bg-orange rounded-full" />
-            <h3 className="text-lg font-bold text-navy">{title}</h3>
+          <div key={i} className="mt-8 mb-3 flex items-center gap-3">
+            <div className="w-1.5 h-7 bg-orange rounded-full" />
+            <h3 className="text-xl font-bold text-navy">{line.replace("### ", "")}</h3>
           </div>
         );
         continue;
       }
 
-      // Tip/Conseil block: line starting with "**Notre conseil**" or "**Conseil**"
+      // Conseil/Tip
       if (line.match(/^\*\*(Notre\s+)?conseil\*\*/i) || line.match(/^\*\*Astuce\*\*/i) || line.match(/^\*\*Bon à savoir\*\*/i)) {
         flushList();
-        const rendered = renderInline(line);
         elements.push(
-          <div key={i} className="my-8 bg-gradient-to-r from-orange/10 to-orange/5 border-l-4 border-orange rounded-r-2xl p-6 flex gap-4 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-orange/20 flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
-              </svg>
-            </div>
-            <div className="text-[15px] text-navy/80 leading-relaxed flex-1" dangerouslySetInnerHTML={{ __html: rendered }} />
+          <div key={i} className="my-8 bg-gradient-to-r from-orange/10 to-orange/5 border-l-4 border-orange rounded-r-2xl p-6">
+            <div className="text-[15px] text-navy/80 leading-relaxed" dangerouslySetInnerHTML={{ __html: renderInline(line) }} />
           </div>
         );
         continue;
       }
 
-      // Bold list item with description: "- **Name** : description"
+      // Bold list item
       if (line.startsWith("- **")) {
         if (!inList || listType !== "ul") { flushList(); inList = true; listType = "ul"; }
         const match = line.match(/- \*\*(.+?)\*\*\s*:?\s*(.*)/);
         if (match) {
           const desc = match[2] ? renderInline(match[2]) : "";
           listItems.push(
-            <li key={i} className="flex gap-3 items-start bg-white rounded-xl p-4 border border-cream-dark/15 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-7 h-7 rounded-lg bg-orange/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg className="w-4 h-4 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                </svg>
-              </div>
+            <li key={i} className="flex gap-3 items-start py-1">
+              <span className="text-orange mt-1">&#x2022;</span>
               <div>
-                <span className="font-bold text-navy text-sm">{match[1]}</span>
-                {desc && <span className="text-navy/60 text-sm" dangerouslySetInnerHTML={{ __html: ` — ${desc}` }} />}
+                <strong className="text-navy">{match[1]}</strong>
+                {desc && <span className="text-slate-500" dangerouslySetInnerHTML={{ __html: ` — ${desc}` }} />}
               </div>
             </li>
           );
@@ -964,50 +917,37 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         continue;
       }
 
-      // Regular list item
+      // Regular list
       if (line.startsWith("- ")) {
         if (!inList || listType !== "ul") { flushList(); inList = true; listType = "ul"; }
-        const content = renderInline(line.replace("- ", ""));
         listItems.push(
-          <li key={i} className="flex gap-2.5 items-start">
-            <svg className="w-4 h-4 text-orange flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-            </svg>
-            <span className="text-sm text-navy/70 leading-relaxed" dangerouslySetInnerHTML={{ __html: content }} />
+          <li key={i} className="flex gap-3 items-start py-1">
+            <span className="text-orange mt-1">&#x2022;</span>
+            <span className="text-slate-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: renderInline(line.replace("- ", "")) }} />
           </li>
         );
         continue;
       }
 
-      // Numbered list item
+      // Numbered list
       if (line.match(/^\d+\. /)) {
         const num = line.match(/^(\d+)\./)?.[1] || "1";
         if (!inList || listType !== "ol") { flushList(); inList = true; listType = "ol"; }
-        const content = renderInline(line.replace(/^\d+\.\s/, ""));
         listItems.push(
-          <li key={i} className="flex gap-4 items-start bg-white rounded-xl p-4 border border-cream-dark/15 shadow-sm">
-            <span className="w-9 h-9 rounded-xl bg-navy text-white text-sm font-bold flex items-center justify-center flex-shrink-0 font-[var(--font-display)]">
-              {num}
-            </span>
-            <span className="text-[15px] text-navy/70 leading-relaxed flex-1 pt-1" dangerouslySetInnerHTML={{ __html: content }} />
+          <li key={i} className="flex gap-4 items-start py-2">
+            <span className="w-8 h-8 rounded-lg bg-navy text-white text-sm font-bold flex items-center justify-center flex-shrink-0">{num}</span>
+            <span className="text-slate-600 leading-relaxed flex-1 pt-1" dangerouslySetInnerHTML={{ __html: renderInline(line.replace(/^\d+\.\s/, "")) }} />
           </li>
         );
         continue;
       }
 
-      // Empty line — flush lists
-      if (line.trim() === "") {
-        flushList();
-        continue;
-      }
+      if (line.trim() === "") { flushList(); continue; }
 
-      // Paragraph with price highlight
+      // Paragraph
       flushList();
-      let rendered = renderInline(line);
-      // Highlight price ranges like "130€" or "130-155€" or "~130-155€"
-      rendered = rendered.replace(/(\~?\d+[\s]*(?:[-–à]\s*\d+)?\s*€)/g, "<span class='text-orange font-semibold'>$1</span>");
       elements.push(
-        <p key={i} className="mb-4 text-[15px] text-navy/70 leading-[1.8]" dangerouslySetInnerHTML={{ __html: rendered }} />
+        <p key={i} className="mb-5 text-lg text-slate-600 leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderInline(line) }} />
       );
     }
     flushList();
@@ -1018,221 +958,122 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   const meta = ARTICLE_IMAGES[slug];
   const heroImage = meta?.image;
   const readTime = meta?.readTime || "5 min";
-
-  // Get related guides (same category, exclude current)
-  const related = Object.entries(ARTICLES)
-    .filter(([s, a]) => s !== slug && a.category === article.category)
-    .slice(0, 2);
+  const related = Object.entries(ARTICLES).filter(([s, a]) => s !== slug && a.category === article.category).slice(0, 2);
 
   return (
-    <div className="min-h-screen bg-cream">
-      {/* JSON-LD Article schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": article.title,
-            "datePublished": "2026-03-15",
-            "image": heroImage,
-            "author": { "@type": "Organization", "name": "BatiPrix" },
-            "publisher": { "@type": "Organization", "name": "BatiPrix", "url": "https://batiprix.pro" },
-            "mainEntityOfPage": `https://batiprix.pro/guides/${slug}`
-          }),
-        }}
-      />
+    <div className="min-h-screen bg-slate-100">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org", "@type": "Article", headline: article.title,
+        datePublished: "2026-03-15", image: heroImage,
+        author: { "@type": "Organization", name: "BatiPrix" },
+        publisher: { "@type": "Organization", name: "BatiPrix", url: "https://batiprix.pro" },
+        mainEntityOfPage: `https://batiprix.pro/guides/${slug}`
+      })}} />
       <Navbar />
 
-      {/* Hero with image */}
-      {heroImage && (
-        <div className="relative h-[300px] md:h-[420px] overflow-hidden">
-          <Image
-            src={heroImage}
-            alt={article.title}
-            fill
-            className="object-cover"
-            sizes="100vw"
-            priority
-            unoptimized
-          />
+      {/* Progress bar */}
+      <div className="fixed top-16 left-0 right-0 h-[3px] z-40">
+        <div id="guide-progress" className="h-full w-0 bg-gradient-to-r from-orange to-orange/70 transition-all duration-100" />
+      </div>
+      <script dangerouslySetInnerHTML={{ __html: `
+        window.addEventListener('scroll',()=>{
+          const h=document.documentElement.scrollHeight-window.innerHeight;
+          const p=document.getElementById('guide-progress');
+          if(p&&h>0)p.style.width=(window.scrollY/h*100)+'%';
+        });
+      `}} />
+
+      {/* Hero */}
+      {heroImage ? (
+        <div className="relative h-[400px] md:h-[500px] overflow-hidden">
+          <Image src={heroImage} alt={article.title} fill className="object-cover" sizes="100vw" priority unoptimized />
           <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-navy/20" />
-          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12 max-w-4xl mx-auto">
-            <Link
-              href="/guides"
-              className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white mb-4 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-              </svg>
+          <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 max-w-[1200px] mx-auto">
+            <Link href="/guides" className="inline-flex items-center gap-1.5 text-sm text-white/60 hover:text-white mb-5 transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
               Guides
             </Link>
-            <div className="flex items-center gap-3 mb-3">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-orange text-white">
-                {article.category}
-              </span>
-              <span className="flex items-center gap-1 text-white/60 text-xs">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-                {readTime} de lecture
-              </span>
-              <span className="text-white/40 text-xs">{article.date}</span>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-orange text-white uppercase">{article.category}</span>
+              <span className="text-white/50 text-sm">{readTime} &middot; {article.date}</span>
             </div>
-            <h1 className="text-2xl md:text-4xl font-bold text-white leading-tight drop-shadow-lg">
-              {article.title}
-            </h1>
+            <h1 className="text-3xl md:text-[44px] font-black text-white leading-tight tracking-tight max-w-[700px]">{article.title}</h1>
           </div>
+        </div>
+      ) : (
+        <div className="pt-24 pb-8 max-w-[1100px] mx-auto px-8">
+          <Link href="/guides" className="text-sm text-orange hover:underline mb-4 inline-block">&larr; Guides</Link>
+          <h1 className="text-3xl md:text-4xl font-black text-navy mt-4 mb-2">{article.title}</h1>
+          <p className="text-steel text-sm">{readTime} &middot; {article.date}</p>
         </div>
       )}
 
-      {/* No hero fallback */}
-      {!heroImage && (
-        <div className="pt-24 pb-8 max-w-4xl mx-auto px-6">
-          <Link href="/guides" className="text-sm text-orange hover:underline mb-4 inline-block">
-            &larr; Retour aux guides
-          </Link>
-          <span className="font-[var(--font-display)] text-xs tracking-wider text-orange uppercase bg-orange/5 px-3 py-1 rounded ml-4">
-            {article.category}
-          </span>
-          <h1 className="text-3xl md:text-4xl font-bold text-navy mt-4 mb-2 leading-tight">
-            {article.title}
-          </h1>
-          <p className="text-steel text-sm">{readTime} de lecture &middot; {article.date}</p>
-        </div>
-      )}
-
-      <main className="pb-12">
-        {/* Floating TOC bar */}
-        <div className="bg-white border-b border-cream-dark/20 sticky top-[64px] z-20">
-          <div className="max-w-5xl mx-auto px-6">
-            <nav className="flex items-center gap-1 overflow-x-auto py-2 scrollbar-hide">
-              <span className="text-[10px] text-steel/40 font-semibold uppercase tracking-wider mr-2 flex-shrink-0">Sommaire</span>
-              {article.content.trim().split("\n")
-                .filter(l => l.startsWith("## "))
-                .map((l, i) => {
-                  const title = l.replace("## ", "");
-                  const id = title.toLowerCase().replace(/[^\w]+/g, "-").replace(/-+$/, "");
-                  return (
-                    <a key={i} href={`#${id}`} className="flex-shrink-0 text-xs text-steel hover:text-orange hover:bg-orange/5 transition-colors px-3 py-1.5 rounded-full border border-transparent hover:border-orange/20">
-                      {title}
-                    </a>
-                  );
-                })}
-            </nav>
-          </div>
-        </div>
-
-        {/* Article content — full width white background */}
-        <article className="bg-white border-t border-cream-dark/20">
-          <div className="max-w-4xl mx-auto px-6 md:px-16 py-12 text-navy/80 leading-relaxed">
+      <main className="pb-0">
+        {/* Article content — full width sections */}
+        <article className="bg-slate-100">
+          <div className="max-w-[1100px] mx-auto px-6 md:px-12 lg:px-20 py-12 text-slate-700 leading-relaxed">
             {renderContent(article.content)}
           </div>
         </article>
 
-        {/* Author + share */}
-        <div className="max-w-4xl mx-auto px-6 md:px-16 mt-12">
-          <div className="border-t border-cream-dark/30 pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-orange" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-                </svg>
-              </div>
-              <div>
-                <p className="font-semibold text-navy text-sm">Rédigé par l&apos;équipe BatiPrix</p>
-                <p className="text-xs text-steel">Mis à jour le {article.date}</p>
+        {/* CTA after content */}
+        <div className="bg-slate-100">
+          <div className="max-w-[1100px] mx-auto px-6 md:px-12 lg:px-20 pb-12">
+            <div className="bg-navy rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
+              <div className="absolute top-[-40px] right-[-40px] w-[200px] h-[200px] rounded-full bg-orange opacity-[0.08] blur-[50px]" />
+              <h2 className="text-2xl md:text-3xl font-black text-white relative">Comparez les prix maintenant</h2>
+              <p className="text-slate-400 mt-3 relative">4 000+ produits &middot; 244 magasins &middot; Cote d&apos;Azur</p>
+              <div className="flex gap-3 justify-center mt-8 relative">
+                <Link href="/recherche" className="bg-orange hover:bg-orange/90 text-white px-8 py-4 rounded-xl font-bold transition-all hover:scale-105">Rechercher un produit</Link>
+                <Link href="/guides" className="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold border border-white/15 transition-all">Voir tous les guides</Link>
               </div>
             </div>
-            <Link href="/guides" className="text-sm text-orange hover:text-orange/80 font-medium flex items-center gap-1 transition-colors">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-              </svg>
-              Tous les guides
-            </Link>
           </div>
         </div>
 
-        {/* Related guides — horizontal cards */}
+        {/* Author */}
+        <div className="bg-slate-100">
+          <div className="max-w-[1100px] mx-auto px-6 md:px-12 lg:px-20 pb-12">
+            <div className="border-t border-slate-200 pt-8 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-navy flex items-center justify-center text-orange font-bold text-xl">B</div>
+                <div>
+                  <p className="font-semibold text-navy text-sm">Rédigé par l&apos;équipe BatiPrix</p>
+                  <p className="text-xs text-slate-400">Mis à jour le {article.date}</p>
+                </div>
+              </div>
+              <Link href="/guides" className="text-sm text-orange font-semibold hover:underline">&larr; Tous les guides</Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Related */}
         {related.length > 0 && (
-          <div className="max-w-5xl mx-auto px-6 mt-12">
-            <h2 className="text-lg font-bold text-navy mb-6 flex items-center gap-3">
-              <div className="h-px flex-1 bg-cream-dark/30" />
-              <span className="px-4">Guides similaires</span>
-              <div className="h-px flex-1 bg-cream-dark/30" />
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-6">
-              {related.map(([relSlug, relArticle]) => {
-                const relMeta = ARTICLE_IMAGES[relSlug];
-                return (
-                  <Link
-                    key={relSlug}
-                    href={`/guides/${relSlug}`}
-                    className="group bg-white rounded-2xl overflow-hidden border border-cream-dark/20 hover:shadow-lg hover:border-orange/20 transition-all duration-300 hover:-translate-y-1"
-                  >
-                    {relMeta?.image && (
-                      <div className="relative h-40 overflow-hidden">
-                        <Image
-                          src={relMeta.image.replace('w=1200&h=600', 'w=600&h=300')}
-                          alt={relArticle.title}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
-                          sizes="(max-width: 640px) 100vw, 50vw"
-                          unoptimized
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-navy/50 to-transparent" />
+          <div className="bg-slate-200/50 py-16">
+            <div className="max-w-[1100px] mx-auto px-6 md:px-12 lg:px-20">
+              <h2 className="text-xl font-bold text-navy text-center mb-8">Guides similaires</h2>
+              <div className="grid sm:grid-cols-2 gap-6">
+                {related.map(([relSlug, relArticle]) => {
+                  const relMeta = ARTICLE_IMAGES[relSlug];
+                  return (
+                    <Link key={relSlug} href={`/guides/${relSlug}`} className="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:shadow-lg hover:border-orange/30 transition-all duration-300 hover:-translate-y-1">
+                      {relMeta?.image && (
+                        <div className="relative h-44 overflow-hidden">
+                          <Image src={relMeta.image.replace('w=1200&h=600', 'w=700&h=400')} alt={relArticle.title} fill className="object-cover object-center group-hover:scale-105 transition-transform duration-500" sizes="50vw" unoptimized />
+                        </div>
+                      )}
+                      <div className="p-6">
+                        <span className="text-[10px] font-bold text-orange uppercase tracking-wider">{relArticle.category}</span>
+                        <h3 className="font-bold text-navy mt-1 group-hover:text-orange transition-colors line-clamp-2">{relArticle.title}</h3>
+                        <span className="text-xs text-slate-400 mt-2 block">{relMeta?.readTime || "5 min"}</span>
                       </div>
-                    )}
-                    <div className="p-5">
-                      <span className="text-[10px] font-bold text-orange uppercase tracking-wide">{relArticle.category}</span>
-                      <h3 className="font-bold text-navy mt-1 group-hover:text-orange transition-colors line-clamp-2">
-                        {relArticle.title}
-                      </h3>
-                      <span className="text-xs text-steel mt-2 flex items-center gap-1">
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
-                        {relMeta?.readTime || "5 min"}
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
-
-        {/* Bottom CTA */}
-        <div className="mt-12 relative bg-navy rounded-3xl overflow-hidden p-8 md:p-12">
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute inset-0" style={{
-              backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M20 20h20v20H20z'/%3E%3C/g%3E%3C/svg%3E\")",
-            }} />
-          </div>
-          <div className="relative text-center">
-            <h2 className="text-2xl font-bold text-white mb-3">
-              Comparez les prix maintenant
-            </h2>
-            <p className="text-steel mb-6 max-w-md mx-auto">
-              Trouvez le meilleur prix pour vos matériaux sur la Côte d&apos;Azur
-              parmi 3 000+ produits et 244 magasins.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                href="/recherche"
-                className="bg-orange hover:bg-orange/90 text-white px-8 py-3 rounded-xl font-bold transition-all hover:scale-105 hover:shadow-lg hover:shadow-orange/30"
-              >
-                Rechercher un produit
-              </Link>
-              <Link
-                href="/guides"
-                className="bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-xl font-bold transition-all border border-white/10"
-              >
-                Voir tous les guides
-              </Link>
-            </div>
-          </div>
-        </div>
       </main>
       <Footer />
     </div>
